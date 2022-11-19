@@ -1,0 +1,4 @@
+ipython==8.6.0
+mlflow==2.0.1
+pip-chill==1.0.1
+tensorflow==2.11.0
