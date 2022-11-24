@@ -7,6 +7,7 @@ from .layers import ResidualBlock
 import tensorflow as tf
 from .. import const
 import mlflow
+import os
 
 def get_model(dim, classes, channels=3):
     model = tf.keras.models.Sequential()	
@@ -20,8 +21,14 @@ def get_model(dim, classes, channels=3):
     model.add(layers.Dense(1, activation='softmax'))
     return model
 
+def get_callbacks():
+    es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=5, restore_best_weights=True)
+
+    return es
+
+
 if __name__ == '__main__':
-    train, test = get_datasets()
+    train, val, test = get_datasets()
     model = get_model(const.IMAGE_SIZE, const.N_CLASSES, const.N_CHANNELS)
     model.summary()
 
@@ -40,7 +47,9 @@ if __name__ == '__main__':
     with mlflow.start_run():
         history = model.fit(train,
                             epochs=const.N_EPOCHS,
-                            use_multiprocessing=True)
+                            validation_data=val,
+                            use_multiprocessing=True,
+                            callbacks=get_callbacks())
 
         trained_model_loss, trained_model_accuracy = model.evaluate(test)
-        model.save(os.path.join(const.BASE_DIR, const.PROD_MODEL_PATH))
+        model.save(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH))

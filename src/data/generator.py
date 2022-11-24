@@ -10,6 +10,7 @@ def get_datasets():
                                          batch_size=const.BATCH) for path in const.DATA_PATHS]
 
 if __name__ == '__main__':
-    train, test = get_datasets()
+    train, val, test = get_datasets()
     print(train.take(1))
+    print(val.take(1))
     print(test.take(1))
