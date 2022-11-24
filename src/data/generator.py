@@ -5,7 +5,9 @@ from .. import const
 import os
 
 def get_datasets():
-    return [image_dataset_from_directory(os.path.join(const.BASE_DIR, *path)) for path in const.DATA_PATHS]
+    return [image_dataset_from_directory(os.path.join(const.BASE_DIR, *path),
+                                         image_size=const.IMAGE_SIZE,
+                                         batch_size=const.BATCH) for path in const.DATA_PATHS]
 
 if __name__ == '__main__':
     train, test = get_datasets()
