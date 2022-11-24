@@ -32,11 +32,10 @@ if __name__ == '__main__':
     model = get_model(const.IMAGE_SIZE, const.N_CLASSES, const.N_CHANNELS)
     model.summary()
 
-    optimizer = tf.keras.optimizers.Adam(learning_rate=1E-4,
+    optimizer = tf.keras.optimizers.Adam(learning_rate=const.LEARNING_RATE,
                                  beta_1=0.9,
                                  beta_2=0.999,
                                  epsilon=1e-08)
-
 
     model.compile(optimizer=optimizer,
             loss='binary_crossentropy',
