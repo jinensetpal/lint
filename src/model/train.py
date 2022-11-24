@@ -7,10 +7,11 @@ from .layers import ResidualBlock
 import tensorflow as tf
 from .. import const
 import mlflow
+import sys
 import os
 
-def get_model(dim, classes, channels=3):
-    model = tf.keras.models.Sequential()	
+def get_model(dim, classes, name, channels=3):
+    model = tf.keras.models.Sequential(name=name)
     model.add(tf.keras.Input(shape=(const.IMAGE_SHAPE)))
     for _ in range(const.N_RES_BLOCKS):
         model.add(ResidualBlock(64, downsample=True))
@@ -28,8 +29,10 @@ def get_callbacks():
 
 
 if __name__ == '__main__':
+    name = sys.argv[1] if sys.argv[1] is not None else 'default'
+
     train, val, test = get_datasets()
-    model = get_model(const.IMAGE_SIZE, const.N_CLASSES, const.N_CHANNELS)
+    model = get_model(const.IMAGE_SIZE, const.N_CLASSES, name, const.N_CHANNELS)
     model.summary()
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=const.LEARNING_RATE,
@@ -51,4 +54,4 @@ if __name__ == '__main__':
                             callbacks=get_callbacks())
 
         trained_model_loss, trained_model_accuracy = model.evaluate(test)
-        model.save(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH))
+        model.save(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, sys.argv))
