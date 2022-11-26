@@ -29,7 +29,7 @@ def get_callbacks():
 
 
 if __name__ == '__main__':
-    name = sys.argv[1] if sys.argv[1] is not None else 'default'
+    name = sys.argv[1] if len(sys.argv) > 1 else 'default'
 
     train, val, test = get_datasets()
     model = get_model(const.IMAGE_SIZE, const.N_CLASSES, name, const.N_CHANNELS)
@@ -48,10 +48,10 @@ if __name__ == '__main__':
     mlflow.tensorflow.autolog()
     with mlflow.start_run():
         history = model.fit(train,
-                            epochs=const.N_EPOCHS,
+                            epochs=const.EPOCHS,
                             validation_data=val,
                             use_multiprocessing=True,
                             callbacks=get_callbacks())
 
         trained_model_loss, trained_model_accuracy = model.evaluate(test)
-        model.save(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, sys.argv))
+        model.save(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, sys.argv[1]))
