@@ -15,10 +15,10 @@ def get_model(dim, classes, name, channels=3):
     model.add(tf.keras.Input(shape=(const.IMAGE_SHAPE)))
     for _ in range(const.N_RES_BLOCKS):
         model.add(ResidualBlock(64, downsample=True))
-    model.add(layers.GlobalAveragePooling2D())
+    model.add(layers.Conv2D(32, kernel_size=(2,2), padding='same'))
 
     model.add(layers.Flatten())
-    for units in [128, 128, 64, 16]: model.add(layers.Dense(units, activation='relu'))
+    for units in [128, 128, 64, 32]: model.add(layers.Dense(units, activation='relu'))
 
     model.add(layers.Dense(1, activation='softmax'))
     return model
@@ -55,4 +55,4 @@ if __name__ == '__main__':
                             callbacks=get_callbacks())
 
         trained_model_loss, trained_model_accuracy = model.evaluate(test)
-        model.save(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, sys.argv[1]))
+        model.save(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, name))
