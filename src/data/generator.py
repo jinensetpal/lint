@@ -38,12 +38,12 @@ if __name__ == '__main__':
     import numpy as np
 
     train, val, test = get_datasets()
-    batch = test.__iter__().next()
     model = load_model(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, 'default'))
 
     fig = plt.figure(figsize=(14, 14),
                     facecolor='white')
-    for X, y in zip(*batch):
+
+    for X, y in zip(*test.__iter__().next()):
         print(X)
 
         img = resize(X.numpy(), dsize=const.IMAGE_SIZE, interpolation=INTER_CUBIC)

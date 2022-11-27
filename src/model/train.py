@@ -15,9 +15,10 @@ def get_model(dim, classes, name, channels=3):
     model.add(tf.keras.Input(shape=(const.IMAGE_SHAPE)))
     for _ in range(const.N_RES_BLOCKS):
         model.add(ResidualBlock(64, downsample=True))
+    model.add(layers.GlobalAveragePooling2D())
 
     model.add(layers.Flatten())
-    for units in [128, 64, 32, 16]: model.add(layers.Dense(units, activation='relu'))
+    for units in [128, 128, 64, 16]: model.add(layers.Dense(units, activation='relu'))
 
     model.add(layers.Dense(1, activation='softmax'))
     return model
