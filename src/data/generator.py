@@ -52,6 +52,8 @@ if __name__ == '__main__':
         img = Image.fromarray(img.astype('uint8'), 'RGB')
 
         fig.add_subplot(4, 4, idx + 1)
+        buf = f'Prediction: {pred}, Label: {y}'
+        plt.xlabel(buf)
         plt.imshow(img, alpha=0.5)
         plt.imshow(out, cmap='jet', alpha=0.5)
     plt.tight_layout()

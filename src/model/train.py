@@ -13,10 +13,15 @@ import os
 def get_model(dim, classes, name, channels=3):
     model = tf.keras.models.Sequential(name=name)
     model.add(tf.keras.Input(shape=(const.IMAGE_SHAPE)))
-    for _ in range(const.N_RES_BLOCKS):
-        model.add(ResidualBlock(64, downsample=True))
-    model.add(layers.Conv2D(32, kernel_size=(2,2), padding='same'))
+    # for _ in range(const.N_RES_BLOCKS):
+    #     model.add(ResidualBlock(64, downsample=True))
+    for filters in [16, 64, 32]:
+        model.add(layers.Conv2D(filters, kernel_size=(2,2), padding='same'))
+        model.add(layers.BatchNormalization())
+        model.add(layers.MaxPooling2D((2, 2)))
+    # model.add(layers.Conv2D(32, kernel_size=(2,2), padding='same'))
 
+    model.add(layers.ReLU())
     model.add(layers.Flatten())
     for units in [128, 128, 64, 32]: model.add(layers.Dense(units, activation='relu'))
 
