@@ -7,9 +7,9 @@ import scipy as sp
 import numpy as np
 import os
 
-def get_datasets():
+def get_dataset():
     return [image_dataset_from_directory(os.path.join(const.BASE_DIR, *path),
-                                             image_size=const.IMAGE_SIZE,
+                                         image_size=const.IMAGE_SIZE,
                                          batch_size=const.BATCH_SIZE) for path in const.DATA_PATHS]
 
 def get_class_activation_map(model, img):
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     from pathlib import Path
     from PIL import Image
 
-    train, val, test = get_datasets()
+    train, val, test = get_dataset()
     model = load_model(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, 'default'))
 
     fig = plt.figure(figsize=(14, 14),

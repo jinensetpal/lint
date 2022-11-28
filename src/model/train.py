@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from tensorflow.keras.utils import image_dataset_from_directory
-from ..data.generator import get_datasets
+from ..data.generator import get_dataset
 from tensorflow.keras import layers
 from .layers import ResidualBlock
 import tensorflow as tf
@@ -37,7 +37,7 @@ def get_callbacks():
 if __name__ == '__main__':
     name = sys.argv[1] if len(sys.argv) > 1 else 'default'
 
-    train, val, test = get_datasets()
+    train, val, test = get_dataset()
     model = get_model(const.IMAGE_SIZE, const.N_CLASSES, name, const.N_CHANNELS)
     model.summary()
 
