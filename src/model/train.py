@@ -13,13 +13,10 @@ import os
 def get_model(dim, classes, name, channels=3):
     model = tf.keras.models.Sequential(name=name)
     model.add(tf.keras.Input(shape=(const.IMAGE_SHAPE)))
-    # for _ in range(const.N_RES_BLOCKS):
-    #     model.add(ResidualBlock(64, downsample=True))
     for filters in [16, 64, 32]:
         model.add(layers.Conv2D(filters, kernel_size=(2,2), padding='same'))
         model.add(layers.BatchNormalization())
         model.add(layers.MaxPooling2D((2, 2)))
-    # model.add(layers.Conv2D(32, kernel_size=(2,2), padding='same'))
 
     model.add(layers.ReLU())
     model.add(layers.Flatten())
@@ -32,7 +29,6 @@ def get_callbacks():
     es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=5, restore_best_weights=True)
 
     return es
-
 
 if __name__ == '__main__':
     name = sys.argv[1] if len(sys.argv) > 1 else 'default'

@@ -10,7 +10,8 @@ import os
 def get_dataset():
     return [image_dataset_from_directory(os.path.join(const.BASE_DIR, *path),
                                          image_size=const.IMAGE_SIZE,
-                                         batch_size=const.BATCH_SIZE) for path in const.DATA_PATHS]
+                                         batch_size=const.BATCH_SIZE,
+                                         seed=const.SEED) for path in const.DATA_PATHS]
 
 def get_class_activation_map(model, img):
     img = np.expand_dims(img, axis=0)
@@ -45,6 +46,7 @@ if __name__ == '__main__':
 
     for idx, (X, y) in enumerate(zip(*test.__iter__().next())):
         X = X.numpy()
+        if idx == 16: break
 
         img = resize(X, dsize=const.IMAGE_SIZE, interpolation=INTER_CUBIC)
         out, pred = get_class_activation_map(model, img)

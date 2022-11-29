@@ -11,6 +11,7 @@ BATCH_SIZE = 32
 N_CHANNELS = 3
 N_CLASSES = 2
 EPOCHS = 10
+SEED = 1024
 
 CAMS_SAVE_DIR = ['data', 'samples']
 PROD_MODEL_PATH = ['models',]
