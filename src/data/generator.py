@@ -17,23 +17,26 @@ def get_class_activation_map(model, img):
     img = np.expand_dims(img, axis=0)
 
     predictions = model.predict(img)
-    label_index = np.argmax(predictions)
+    label_index = np.argmax(predictions[0])
     class_weights = model.layers[-1].get_weights()[0][:, label_index] 
 
     final_conv_layer = model.get_layer(const.PENULTIMATE_LAYER)
 
     get_output = keras.backend.function([model.layers[0].input], [final_conv_layer.output, model.layers[-1].output])
-    conv_outputs, predictions = get_output([img])
-    conv_outputs = np.squeeze(conv_outputs)
-    mat_for_mult = sp.ndimage.zoom(conv_outputs, (const.IMAGE_SIZE[0] / conv_outputs.shape[0], const.IMAGE_SIZE[1] / conv_outputs.shape[1], 1), order=1) 
-    final_output = np.dot(mat_for_mult.reshape((const.IMAGE_SIZE[0] * const.IMAGE_SIZE[1], 32)), class_weights).reshape(const.IMAGE_SIZE[0], const.IMAGE_SIZE[1]) 
+    final_output = get_map(*get_output(img), class_weights)
 
     return final_output, label_index
+
+def get_map(conv_outputs, predictions, class_weights):
+    conv_outputs = np.squeeze(conv_outputs)
+    mat_for_mult = sp.ndimage.zoom(conv_outputs, (const.IMAGE_SIZE[0] / conv_outputs.shape[0], const.IMAGE_SIZE[1] / conv_outputs.shape[1], 1), order=1)
+    return np.dot(mat_for_mult.reshape((const.IMAGE_SIZE[0] * const.IMAGE_SIZE[1], 32)), class_weights).reshape(const.IMAGE_SIZE[0], const.IMAGE_SIZE[1])
 
 if __name__ == '__main__':
     # imports for visualizing cams
     from tensorflow.keras.models import load_model
     from cv2 import resize, INTER_CUBIC
+    from ..model.loss import CAMLoss
     import matplotlib.pyplot as plt
     from pathlib import Path
     from PIL import Image
@@ -41,7 +44,8 @@ if __name__ == '__main__':
 
     train, val, test = get_dataset()
     name = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
-    model = load_model(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, name))
+    model = load_model(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, name),
+                       custom_objects={'CAMLoss': CAMLoss})
 
     fig = plt.figure(figsize=(14, 14),
                     facecolor='white')
@@ -61,4 +65,4 @@ if __name__ == '__main__':
     plt.tight_layout()
 
     Path(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR)).mkdir(parents=True, exist_ok=True)
-    fig.savefig(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, f'cams-{name}.png'))
+    fig.savefig(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, f'{name}.png'))

@@ -1,6 +1,15 @@
 #!/usr/bin/env python
 
-class MeanSquaredError(tf.keras.losses.Loss):
+from tensorflow.keras.losses import Loss
+from random import randint
+import tensorflow as tf
+from .. import const
 
-  def call(self, y_true, y_pred):
-    return tf.reduce_mean(tf.math.square(y_pred - y_true), axis=-1)
+class CAMLoss(Loss):
+    def call(self, _, slice):
+        bounds = {'lower': round(.8 * slice.shape[1]), 
+                  'upper': slice.shape[1]}
+        return tf.reduce_mean(slice[0, 
+                                    randint(bounds['lower'], bounds['upper'] - 1):bounds['upper'], 
+                                    randint(bounds['lower'], bounds['upper'] - 1):bounds['upper'], 
+                                    :], axis=-1) * const.SCALE_FACTOR 

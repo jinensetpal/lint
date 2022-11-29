@@ -2,24 +2,29 @@
 
 from pathlib import Path
 
+# directories
 BASE_DIR = Path(__file__).parent.parent.as_posix()
 DATA_PATHS = [['data', 'train'], ['data', 'val'], ['data', 'test']]
+CAMS_SAVE_DIR = ['data', 'cams']
+PROD_MODEL_PATH = ['models',]
 
+# CAMs 
+PENULTIMATE_LAYER = 'relu'
+THRESHOLD = .97
+
+# training 
+MODEL_NAME = 'default'
 LEARNING_RATE = 1E-2
-N_RES_BLOCKS = 3
+SCALE_FACTOR = 5
 BATCH_SIZE = 32
-N_CHANNELS = 3
-N_CLASSES = 2
 EPOCHS = 10
 SEED = 1024
 
-CAMS_SAVE_DIR = ['data', 'samples']
-PROD_MODEL_PATH = ['models',]
-
+# dataset
 IMAGE_SIZE = (192, 192)
+N_CHANNELS = 3
+N_CLASSES = 2
 IMAGE_SHAPE = IMAGE_SIZE + (N_CHANNELS,)
 
+# tracking
 MLFLOW_TRACKING_URI = 'https://dagshub.com/jinensetpal/tmls22.mlflow'
-PENULTIMATE_LAYER = 're_lu'
-THRESHOLD = .97
-MODEL_NAME = 'default'
