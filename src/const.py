@@ -22,3 +22,4 @@ IMAGE_SHAPE = IMAGE_SIZE + (N_CHANNELS,)
 MLFLOW_TRACKING_URI = 'https://dagshub.com/jinensetpal/tmls22.mlflow'
 PENULTIMATE_LAYER = 're_lu'
 THRESHOLD = .97
+MODEL_NAME = 'default'

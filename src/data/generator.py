@@ -39,7 +39,8 @@ if __name__ == '__main__':
     from PIL import Image
 
     train, val, test = get_dataset()
-    model = load_model(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, 'default'))
+    name = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
+    model = load_model(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, name))
 
     fig = plt.figure(figsize=(14, 14),
                     facecolor='white')
@@ -54,11 +55,9 @@ if __name__ == '__main__':
         img = Image.fromarray(img.astype('uint8'), 'RGB')
 
         fig.add_subplot(4, 4, idx + 1)
-        buf = f'Prediction: {pred}, Label: {y}'
-        plt.xlabel(buf)
         plt.imshow(img, alpha=0.5)
         plt.imshow(out, cmap='jet', alpha=0.5)
     plt.tight_layout()
 
     Path(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR)).mkdir(parents=True, exist_ok=True)
-    fig.savefig(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, 'cams.png'))
+    fig.savefig(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, f'cams-{name}.png'))

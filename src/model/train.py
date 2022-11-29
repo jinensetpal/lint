@@ -4,26 +4,27 @@ from tensorflow.keras.utils import image_dataset_from_directory
 from ..data.generator import get_dataset
 from tensorflow.keras import layers
 from .layers import ResidualBlock
+from copy import copy
 import tensorflow as tf
 from .. import const
 import mlflow
 import sys
 import os
 
-def get_model(dim, classes, name, channels=3):
-    model = tf.keras.models.Sequential(name=name)
-    model.add(tf.keras.Input(shape=(const.IMAGE_SHAPE)))
+def get_model(input_shape, classes, name, channels=3):
+    input = tf.keras.Input(shape=input_shape)
+    x = layers.Conv2D(16, kernel_size=(2,2), padding='same')(input)
     for filters in [16, 64, 32]:
-        model.add(layers.Conv2D(filters, kernel_size=(2,2), padding='same'))
-        model.add(layers.BatchNormalization())
-        model.add(layers.MaxPooling2D((2, 2)))
+        x = layers.Conv2D(filters, kernel_size=(2,2), padding='same')(x)
+        x = layers.BatchNormalization()(x)
+        x = layers.MaxPooling2D((2, 2))(x)
 
-    model.add(layers.ReLU())
-    model.add(layers.Flatten())
-    for units in [128, 128, 64, 32]: model.add(layers.Dense(units, activation='relu'))
+    x = layers.ReLU()(x)
+    x = layers.Flatten()(x)
+    for units in [128, 128, 64, 32]: x = layers.Dense(units, activation='relu')(x)
 
-    model.add(layers.Dense(1, activation='softmax'))
-    return model
+    x = layers.Dense(1, activation='softmax')(x)
+    return tf.keras.Model(inputs=input, outputs=x, name=name)
 
 def get_callbacks():
     es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=5, restore_best_weights=True)
@@ -31,10 +32,10 @@ def get_callbacks():
     return es
 
 if __name__ == '__main__':
-    name = sys.argv[1] if len(sys.argv) > 1 else 'default'
+    name = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
 
     train, val, test = get_dataset()
-    model = get_model(const.IMAGE_SIZE, const.N_CLASSES, name, const.N_CHANNELS)
+    model = get_model(const.IMAGE_SHAPE, const.N_CLASSES, name, const.N_CHANNELS)
     model.summary()
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=const.LEARNING_RATE,
