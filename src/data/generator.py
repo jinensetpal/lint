@@ -37,6 +37,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     from pathlib import Path
     from PIL import Image
+    import sys
 
     train, val, test = get_dataset()
     name = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
