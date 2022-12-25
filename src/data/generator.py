@@ -19,7 +19,6 @@ def get_class_activation_map(model, img):
     predictions = model.predict(img)
     label_index = np.argmax(predictions[0])
     class_weights = model.layers[-1].get_weights()[0][:, label_index] 
-    print(class_weights)
 
     final_conv_layer = model.get_layer(const.PENULTIMATE_LAYER)
 
@@ -46,12 +45,12 @@ if __name__ == '__main__':
     train, val, test = get_dataset()
     name = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
     model = load_model(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, name),
-                       custom_objects={'CAMLoss': CAMLoss})
+                       custom_objects={'CAMLoss': CAMLoss},
+                       compile=False)
 
     fig = plt.figure(figsize=(14, 14),
-                    facecolor='white')
+                     facecolor='white')
 
-    Path(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, name)).mkdir(parents=True, exist_ok=True)
     for idx, (X, y) in enumerate(zip(*test.__iter__().next())):
         X = X.numpy()
         if idx == 16: break
@@ -61,10 +60,10 @@ if __name__ == '__main__':
         img = resize(X, dsize=const.IMAGE_SIZE, interpolation=INTER_CUBIC)
         img = Image.fromarray(img.astype('uint8'), 'RGB')
 
+        fig.add_subplot(4, 4, idx + 1)
         plt.imshow(img, alpha=0.5)
         plt.imshow(out, cmap='jet', alpha=0.5)
-        plt.savefig(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, name, f'{idx}.png'))
-        plt.clf()
-        plt.imshow(img, alpha=1)
-        plt.savefig(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, name, f'{idx}-o.png'))
-        plt.clf()
+    plt.tight_layout()
+
+    Path(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR)).mkdir(parents=True, exist_ok=True)
+    fig.savefig(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, f'{name}.png'))

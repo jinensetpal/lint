@@ -23,14 +23,14 @@ if __name__ == '__main__':
     model.summary()
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=const.LEARNING_RATE,
-                                 beta_1=0.9,
-                                 beta_2=0.999,
-                                 epsilon=1e-08)
+                                         beta_1=0.9,
+                                         beta_2=0.999,
+                                         epsilon=1e-08)
     losses = ['binary_crossentropy', CAMLoss()] if const.MODEL_NAME != name else 'binary_crossentropy'
     model.compile(optimizer=optimizer,
-            loss=losses,
-            metrics={'output': 'accuracy'},
-            run_eagerly=True)
+                  loss=losses,
+                  metrics={'output': 'accuracy'},
+                  run_eagerly=True)
 
     mlflow.set_tracking_uri(const.MLFLOW_TRACKING_URI)
     mlflow.tensorflow.autolog()
