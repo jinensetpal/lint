@@ -19,15 +19,16 @@ def get_class_activation_map(model, img):
     predictions = model.predict(img)
     label_index = np.argmax(predictions[0])
     class_weights = model.layers[-1].get_weights()[0][:, label_index] 
+    print(class_weights)
 
     final_conv_layer = model.get_layer(const.PENULTIMATE_LAYER)
 
-    get_output = keras.backend.function([model.layers[0].input], [final_conv_layer.output, model.layers[-1].output])
-    final_output = get_map(*get_output(img), class_weights)
+    get_output = keras.backend.function(model.layers[0].input, final_conv_layer.output)
+    final_output = extrapolate(*get_output(img), class_weights)
 
     return final_output, label_index
 
-def get_map(conv_outputs, predictions, class_weights):
+def extrapolate(conv_outputs, class_weights):
     conv_outputs = np.squeeze(conv_outputs)
     mat_for_mult = sp.ndimage.zoom(conv_outputs, (const.IMAGE_SIZE[0] / conv_outputs.shape[0], const.IMAGE_SIZE[1] / conv_outputs.shape[1], 1), order=1)
     return np.dot(mat_for_mult.reshape((const.IMAGE_SIZE[0] * const.IMAGE_SIZE[1], 32)), class_weights).reshape(const.IMAGE_SIZE[0], const.IMAGE_SIZE[1])
@@ -50,6 +51,7 @@ if __name__ == '__main__':
     fig = plt.figure(figsize=(14, 14),
                     facecolor='white')
 
+    Path(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, name)).mkdir(parents=True, exist_ok=True)
     for idx, (X, y) in enumerate(zip(*test.__iter__().next())):
         X = X.numpy()
         if idx == 16: break
@@ -59,10 +61,10 @@ if __name__ == '__main__':
         img = resize(X, dsize=const.IMAGE_SIZE, interpolation=INTER_CUBIC)
         img = Image.fromarray(img.astype('uint8'), 'RGB')
 
-        fig.add_subplot(4, 4, idx + 1)
         plt.imshow(img, alpha=0.5)
         plt.imshow(out, cmap='jet', alpha=0.5)
-    plt.tight_layout()
-
-    Path(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR)).mkdir(parents=True, exist_ok=True)
-    fig.savefig(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, f'{name}.png'))
+        plt.savefig(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, name, f'{idx}.png'))
+        plt.clf()
+        plt.imshow(img, alpha=1)
+        plt.savefig(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, name, f'{idx}-o.png'))
+        plt.clf()

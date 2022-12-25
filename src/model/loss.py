@@ -1,15 +1,28 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
+from tensorflow.keras.activations import relu
 from tensorflow.keras.losses import Loss
-from random import randint
+from ..data.generator import extrapolate
+from random import randint, seed
 import tensorflow as tf
 from .. import const
 
 class CAMLoss(Loss):
-    def call(self, _, slice):
-        bounds = {'lower': round(.8 * slice.shape[1]), 
-                  'upper': slice.shape[1]}
-        return tf.reduce_mean(slice[0, 
-                                    randint(bounds['lower'], bounds['upper'] - 1):bounds['upper'], 
-                                    randint(bounds['lower'], bounds['upper'] - 1):bounds['upper'], 
-                                    :], axis=-1) * const.SCALE_FACTOR 
+    def __init__(self):
+        super().__init__()
+        seed(const.SEED)
+        self.weights = None
+        self.label_index = None
+
+    def call(self, _, conv_outputs):
+        loss = 0
+        for conv_output in conv_outputs:
+            weights = self.weights[:, 0]
+            cam = relu(extrapolate(conv_output, weights)).numpy()
+
+            bounds = {'lower': round(.9 * cam.shape[1]), 
+                      'upper': cam.shape[1]}
+            loss += cam[randint(bounds['lower'], bounds['upper'] - 1):bounds['upper'], 
+                        randint(bounds['lower'], bounds['upper'] - 1):bounds['upper']].sum()
+
+        return loss / conv_outputs.shape[0] * const.SCALE_FACTOR

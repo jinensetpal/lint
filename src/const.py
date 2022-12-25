@@ -5,6 +5,7 @@ from pathlib import Path
 # directories
 BASE_DIR = Path(__file__).parent.parent.as_posix()
 DATA_PATHS = [['data', 'train'], ['data', 'val'], ['data', 'test']]
+SAMPLE_SAVE_DIR = ['data', 'samples']
 CAMS_SAVE_DIR = ['data', 'cams']
 PROD_MODEL_PATH = ['models',]
 
@@ -15,7 +16,7 @@ THRESHOLD = .97
 # training 
 MODEL_NAME = 'default'
 LEARNING_RATE = 1E-2
-SCALE_FACTOR = 5
+SCALE_FACTOR = 1
 BATCH_SIZE = 32
 EPOCHS = 10
 SEED = 1024

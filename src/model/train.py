@@ -1,32 +1,14 @@
 #!/usr/bin/env python3
 
-from tensorflow.keras.utils import image_dataset_from_directory
 from ..data.generator import get_dataset
-from tensorflow.keras import layers
-from .layers import ResidualBlock
+from .arch import get_model
 from .loss import CAMLoss
 import tensorflow as tf
 from .. import const
+import numpy as np
 import mlflow
 import sys
 import os
-
-def get_model(input_shape, classes, name, channels=3, multiheaded=True):
-    input = tf.keras.Input(shape=input_shape)
-    x = layers.Conv2D(16, kernel_size=(2,2), padding='same')(input)
-    for filters in [16, 64, 32]:
-        x = layers.Conv2D(filters, kernel_size=(2,2), padding='same')(x)
-        x = layers.BatchNormalization()(x)
-        x = layers.MaxPooling2D((2, 2))(x)
-
-    relu = layers.ReLU(name='relu')(x)
-    x = layers.Flatten()(relu)
-    for units in [128, 128, 64, 32]: x = layers.Dense(units, activation='relu')(x)
-
-    x = layers.Dense(1, activation='softmax', name='output')(x)
-    outputs = [x, relu] if multiheaded else x
-
-    return tf.keras.Model(inputs=input, outputs=outputs, name=name)
 
 def get_callbacks():
     es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=5, restore_best_weights=True)
@@ -44,16 +26,15 @@ if __name__ == '__main__':
                                  beta_1=0.9,
                                  beta_2=0.999,
                                  epsilon=1e-08)
-
     losses = ['binary_crossentropy', CAMLoss()] if const.MODEL_NAME != name else 'binary_crossentropy'
     model.compile(optimizer=optimizer,
             loss=losses,
-            metrics={'output': 'accuracy'})
+            metrics={'output': 'accuracy'},
+            run_eagerly=True)
 
     mlflow.set_tracking_uri(const.MLFLOW_TRACKING_URI)
     mlflow.tensorflow.autolog()
-    # with mlflow.start_run():
-    if True:
+    with mlflow.start_run():
         model.fit(train,
                   epochs=const.EPOCHS,
                   validation_data=val,
