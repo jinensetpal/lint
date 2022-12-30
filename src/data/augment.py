@@ -10,8 +10,10 @@ import numpy as np
 import sys
 import os
 
+
 def difference(dir, tar):
     return len(glob(dir)) - len(glob(tar))
+
 
 if __name__ == '__main__':
     augment = tf.keras.Sequential([layers.RandomFlip('horizontal_and_vertical'),

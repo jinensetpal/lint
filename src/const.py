@@ -9,16 +9,16 @@ SAMPLE_SAVE_DIR = ['data', 'samples']
 CAMS_SAVE_DIR = ['data', 'cams']
 PROD_MODEL_PATH = ['models',]
 
-# CAMs 
+# CAMs
 PENULTIMATE_LAYER = 'relu'
 THRESHOLD = .97
 
-# training 
+# training
 MODEL_NAME = 'default'
 LEARNING_RATE = 1E-2
-SCALE_FACTOR = 1
+SCALE_FACTOR = 3
 BATCH_SIZE = 32
-EPOCHS = 10
+EPOCHS = 3
 SEED = 1024
 
 # dataset
@@ -29,3 +29,4 @@ IMAGE_SHAPE = IMAGE_SIZE + (N_CHANNELS,)
 
 # tracking
 MLFLOW_TRACKING_URI = 'https://dagshub.com/jinensetpal/tmls22.mlflow'
+LOG = True

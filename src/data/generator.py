@@ -7,18 +7,20 @@ import scipy as sp
 import numpy as np
 import os
 
+
 def get_dataset():
     return [image_dataset_from_directory(os.path.join(const.BASE_DIR, *path),
                                          image_size=const.IMAGE_SIZE,
                                          batch_size=const.BATCH_SIZE,
                                          seed=const.SEED) for path in const.DATA_PATHS]
 
+
 def get_class_activation_map(model, img):
     img = np.expand_dims(img, axis=0)
 
     predictions = model.predict(img)
     label_index = np.argmax(predictions[0])
-    class_weights = model.layers[-1].get_weights()[0][:, label_index] 
+    class_weights = model.layers[-1].get_weights()[0][:, label_index]
 
     final_conv_layer = model.get_layer(const.PENULTIMATE_LAYER)
 
@@ -27,10 +29,12 @@ def get_class_activation_map(model, img):
 
     return final_output, label_index
 
+
 def extrapolate(conv_outputs, class_weights):
     conv_outputs = np.squeeze(conv_outputs)
     mat_for_mult = sp.ndimage.zoom(conv_outputs, (const.IMAGE_SIZE[0] / conv_outputs.shape[0], const.IMAGE_SIZE[1] / conv_outputs.shape[1], 1), order=1)
     return np.dot(mat_for_mult.reshape((const.IMAGE_SIZE[0] * const.IMAGE_SIZE[1], 32)), class_weights).reshape(const.IMAGE_SIZE[0], const.IMAGE_SIZE[1])
+
 
 if __name__ == '__main__':
     # imports for visualizing cams

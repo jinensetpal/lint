@@ -1,4 +1,5 @@
 [core]
     autostage = true
+    analytics = false
 ['remote "origin"']
     url = https://dagshub.com/jinensetpal/tmls22.dvc

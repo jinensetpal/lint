@@ -5,21 +5,24 @@ from .arch import get_model
 from .loss import CAMLoss
 import tensorflow as tf
 from .. import const
-import numpy as np
+import threading
 import mlflow
 import sys
 import os
+
 
 def get_callbacks():
     es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=5, restore_best_weights=True)
 
     return es
 
+
 if __name__ == '__main__':
     name = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
+    multiheaded = const.MODEL_NAME != name
 
     train, val, test = get_dataset()
-    model = get_model(const.IMAGE_SHAPE, const.N_CLASSES, name, const.N_CHANNELS, multiheaded=const.MODEL_NAME != name)
+    model = get_model(const.IMAGE_SHAPE, const.N_CLASSES, name, const.N_CHANNELS, multiheaded=multiheaded)
     model.summary()
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=const.LEARNING_RATE,
@@ -30,16 +33,16 @@ if __name__ == '__main__':
     model.compile(optimizer=optimizer,
                   loss=losses,
                   metrics={'output': 'accuracy'},
-                  run_eagerly=True)
+                  run_eagerly=multiheaded)
 
-    mlflow.set_tracking_uri(const.MLFLOW_TRACKING_URI)
     mlflow.tensorflow.autolog()
-    with mlflow.start_run():
+    with mlflow.start_run() if const.LOG else threading.Lock():  # the threading lock is really just a placeholder for `pass`
         model.fit(train,
                   epochs=const.EPOCHS,
                   validation_data=val,
                   use_multiprocessing=True,
                   callbacks=get_callbacks())
-
         metrics = model.evaluate(test)
-        model.save(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, name))
+
+        save_path = os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, name) 
+        model.save(save_path)

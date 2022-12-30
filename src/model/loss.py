@@ -4,8 +4,8 @@ from tensorflow.keras.activations import relu
 from tensorflow.keras.losses import Loss
 from ..data.generator import extrapolate
 from random import randint, seed
-import tensorflow as tf
 from .. import const
+
 
 class CAMLoss(Loss):
     def __init__(self):
@@ -20,9 +20,9 @@ class CAMLoss(Loss):
             weights = self.weights[:, 0]
             cam = relu(extrapolate(conv_output, weights)).numpy()
 
-            bounds = {'lower': round(.9 * cam.shape[1]), 
+            bounds = {'lower': round(.9 * cam.shape[1]),
                       'upper': cam.shape[1]}
-            loss += cam[randint(bounds['lower'], bounds['upper'] - 1):bounds['upper'], 
+            loss += cam[randint(bounds['lower'], bounds['upper'] - 1):bounds['upper'],
                         randint(bounds['lower'], bounds['upper'] - 1):bounds['upper']].sum()
 
         return loss / conv_outputs.shape[0] * const.SCALE_FACTOR
