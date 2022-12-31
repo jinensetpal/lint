@@ -3,7 +3,6 @@
 from tensorflow.keras import layers
 import tensorflow as tf
 from .. import const
-import mlflow
 
 
 class Model(tf.keras.Model):

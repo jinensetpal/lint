@@ -15,10 +15,10 @@ THRESHOLD = .97
 
 # training
 MODEL_NAME = 'default'
-LEARNING_RATE = 1E-2
-SCALE_FACTOR = 3
+LEARNING_RATE = 1E-3
+SCALE_FACTOR = 1E-3
 BATCH_SIZE = 32
-EPOCHS = 3
+EPOCHS = 10
 SEED = 1024
 
 # dataset
@@ -29,4 +29,4 @@ IMAGE_SHAPE = IMAGE_SIZE + (N_CHANNELS,)
 
 # tracking
 MLFLOW_TRACKING_URI = 'https://dagshub.com/jinensetpal/tmls22.mlflow'
-LOG = True
+LOG = False

@@ -5,16 +5,15 @@ from .arch import get_model
 from .loss import CAMLoss
 import tensorflow as tf
 from .. import const
-import threading
 import mlflow
 import sys
 import os
 
 
-def get_callbacks():
-    es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=5, restore_best_weights=True)
+def get_callbacks(parameter):
+    es = tf.keras.callbacks.EarlyStopping(monitor=parameter, mode='min', patience=const.EPOCHS, restore_best_weights=True)
 
-    return es
+    return [es,]
 
 
 if __name__ == '__main__':
@@ -35,14 +34,11 @@ if __name__ == '__main__':
                   metrics={'output': 'accuracy'},
                   run_eagerly=multiheaded)
 
-    mlflow.tensorflow.autolog()
-    with mlflow.start_run() if const.LOG else threading.Lock():  # the threading lock is really just a placeholder for `pass`
-        model.fit(train,
-                  epochs=const.EPOCHS,
-                  validation_data=val,
-                  use_multiprocessing=True,
-                  callbacks=get_callbacks())
-        metrics = model.evaluate(test)
-
-        save_path = os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, name) 
-        model.save(save_path)
+    if const.LOG: mlflow.tensorflow.autolog()
+    model.fit(train,
+              epochs=const.EPOCHS,
+              validation_data=val,
+              use_multiprocessing=True,
+              callbacks=get_callbacks('val_relu_loss' if multiheaded else 'val_loss'))
+    metrics = model.evaluate(test)
+    model.save(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, name))
