@@ -11,9 +11,9 @@ import os
 
 
 def get_callbacks(parameter):
-    es = tf.keras.callbacks.EarlyStopping(monitor=parameter, mode='min', patience=const.EPOCHS, restore_best_weights=True)
+    lr = tf.keras.callbacks.ReduceLROnPlateau(parameter, patience=const.EPOCHS * .25)
 
-    return [es,]
+    return [lr,]
 
 
 if __name__ == '__main__':
@@ -24,10 +24,7 @@ if __name__ == '__main__':
     model = get_model(const.IMAGE_SHAPE, const.N_CLASSES, name, const.N_CHANNELS, multiheaded=multiheaded)
     model.summary()
 
-    optimizer = tf.keras.optimizers.Adam(learning_rate=const.LEARNING_RATE,
-                                         beta_1=0.9,
-                                         beta_2=0.999,
-                                         epsilon=1e-08)
+    optimizer = tf.keras.optimizers.SGD(learning_rate=const.LEARNING_RATE)
     losses = ['binary_crossentropy', CAMLoss()] if const.MODEL_NAME != name else 'binary_crossentropy'
     model.compile(optimizer=optimizer,
                   loss=losses,
@@ -39,6 +36,6 @@ if __name__ == '__main__':
               epochs=const.EPOCHS,
               validation_data=val,
               use_multiprocessing=True,
-              callbacks=get_callbacks('val_relu_loss' if multiheaded else 'val_loss'))
+              callbacks=get_callbacks('relu_loss') if multiheaded else get_callbacks('val_loss'))
     metrics = model.evaluate(test)
     model.save(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, name))
