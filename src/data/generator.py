@@ -4,7 +4,6 @@ from tensorflow.keras.utils import image_dataset_from_directory
 from tensorflow import keras
 import tensorflow as tf
 from .. import const
-import scipy as sp
 import numpy as np
 import os
 
@@ -32,8 +31,6 @@ def get_class_activation_map(model, img):
 
 
 def extrapolate(conv_outputs, class_weights):
-    from tensorflow.python.ops.numpy_ops import np_config
-    np_config.enable_numpy_behavior()
 
     conv_outputs = tf.squeeze(conv_outputs)
     mat_for_mult = tf.image.resize(conv_outputs, const.IMAGE_SIZE)

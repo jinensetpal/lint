@@ -3,8 +3,6 @@
 from tensorflow.keras.losses import Loss, BinaryCrossentropy
 from ..data.generator import extrapolate
 import tensorflow as tf
-from .. import const
-import numpy as np
 
 
 class BCELoss(BinaryCrossentropy):
