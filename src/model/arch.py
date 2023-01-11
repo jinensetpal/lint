@@ -6,17 +6,19 @@ from .. import const
 
 
 class Model(tf.keras.Model):
-    def __init__(self, log=False, **args):
+    def __init__(self, **args):
         super().__init__(**args)
-        self.log = bool(log)
 
     def train_step(self, data):
+        epoch = len(self.history.history.get('lr', [])) + 1
         x, y = data
 
         with tf.GradientTape() as tape:
             y_pred = self(x, training=True)
 
-            if const.MODEL_NAME != self.name: self.compiled_loss._losses[1].weights = self.layers[-1].get_weights()[0]
+            if const.MODEL_NAME != self.name:
+                self.compiled_loss._losses[1].weights = self.layers[-1].get_weights()[0]
+                for loss in self.compiled_loss._losses: loss.epoch = epoch
             loss = self.compiled_loss(y, y_pred, regularization_losses=self.losses)
 
         weights = self.trainable_variables

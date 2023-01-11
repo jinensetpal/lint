@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 from ..data.generator import get_dataset
+from .loss import CAMLoss, BCELoss
 from .arch import get_model
-from .loss import CAMLoss
 import tensorflow as tf
 from .. import const
 import mlflow
@@ -10,10 +10,15 @@ import sys
 import os
 
 
-def get_callbacks(parameter):
-    lr = tf.keras.callbacks.ReduceLROnPlateau(parameter, patience=const.EPOCHS * .25)
+def get_callbacks(threshold, parameter='val_loss'):
+    def schedule(epoch, lr):
+        if epoch != threshold: return lr
+        return lr * 1E-2
 
-    return [lr,]
+    plt = tf.keras.callbacks.ReduceLROnPlateau(parameter, patience=const.EPOCHS * .5)  # NOQA F841
+    sch = tf.keras.callbacks.LearningRateScheduler(schedule)
+
+    return [sch]
 
 
 if __name__ == '__main__':
@@ -25,7 +30,7 @@ if __name__ == '__main__':
     model.summary()
 
     optimizer = tf.keras.optimizers.SGD(learning_rate=const.LEARNING_RATE)
-    losses = ['binary_crossentropy', CAMLoss()] if const.MODEL_NAME != name else 'binary_crossentropy'
+    losses = [BCELoss(const.LIMIT), CAMLoss(const.LIMIT)] if const.MODEL_NAME != name else 'binary_crossentropy'
     model.compile(optimizer=optimizer,
                   loss=losses,
                   metrics={'output': 'accuracy'},
@@ -36,6 +41,6 @@ if __name__ == '__main__':
               epochs=const.EPOCHS,
               validation_data=val,
               use_multiprocessing=True,
-              callbacks=get_callbacks('relu_loss') if multiheaded else get_callbacks('val_loss'))
+              callbacks=get_callbacks(const.LIMIT))
     metrics = model.evaluate(test)
     model.save(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, name))
