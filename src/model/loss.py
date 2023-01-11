@@ -2,7 +2,8 @@
 
 from tensorflow.keras.losses import Loss, BinaryCrossentropy
 from ..data.generator import extrapolate
-from tensorflow.math import log
+import tensorflow as tf
+from .. import const
 import numpy as np
 
 
@@ -25,15 +26,13 @@ class CAMLoss(Loss):
         self.weights = None
 
     def call(self, labels, conv_outputs):
-        loss = []
-        if self.epoch > self.limit: return 0
-
-        for conv_output in conv_outputs:
+        def compute_loss(conv_output):
             weights = self.weights[:, 0]
             cam = extrapolate(conv_output, weights)
 
             cam -= cam.min()
             cam /= cam.max()
 
-            loss.append(cam[:round(cam.shape[0] * .1), :].mean())
-        return log(np.array(loss) + 1)
+            return cam[:round(cam.shape[0] * .1), :].mean()
+
+        return 0 if self.epoch > self.limit else tf.math.log(tf.map_fn(fn=compute_loss, elems=conv_outputs) + 1)

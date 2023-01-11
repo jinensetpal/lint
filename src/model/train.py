@@ -33,8 +33,7 @@ if __name__ == '__main__':
     losses = [BCELoss(const.LIMIT), CAMLoss(const.LIMIT)] if const.MODEL_NAME != name else 'binary_crossentropy'
     model.compile(optimizer=optimizer,
                   loss=losses,
-                  metrics={'output': 'accuracy'},
-                  run_eagerly=multiheaded)
+                  metrics={'output': 'accuracy'})
 
     if const.LOG: mlflow.tensorflow.autolog()
     model.fit(train,

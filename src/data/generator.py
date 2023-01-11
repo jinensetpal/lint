@@ -2,6 +2,7 @@
 
 from tensorflow.keras.utils import image_dataset_from_directory
 from tensorflow import keras
+import tensorflow as tf
 from .. import const
 import scipy as sp
 import numpy as np
@@ -31,9 +32,12 @@ def get_class_activation_map(model, img):
 
 
 def extrapolate(conv_outputs, class_weights):
-    conv_outputs = np.squeeze(conv_outputs)
-    mat_for_mult = sp.ndimage.zoom(conv_outputs, (const.IMAGE_SIZE[0] / conv_outputs.shape[0], const.IMAGE_SIZE[1] / conv_outputs.shape[1], 1), order=1)
-    return np.dot(mat_for_mult.reshape((const.IMAGE_SIZE[0] * const.IMAGE_SIZE[1], 32)), class_weights).reshape(const.IMAGE_SIZE[0], const.IMAGE_SIZE[1])
+    from tensorflow.python.ops.numpy_ops import np_config
+    np_config.enable_numpy_behavior()
+
+    conv_outputs = tf.squeeze(conv_outputs)
+    mat_for_mult = tf.image.resize(conv_outputs, const.IMAGE_SIZE)
+    return tf.tensordot(mat_for_mult.reshape((const.IMAGE_SIZE[0] * const.IMAGE_SIZE[1], 32)), class_weights, 1).reshape(const.IMAGE_SIZE[0], const.IMAGE_SIZE[1])
 
 
 if __name__ == '__main__':
