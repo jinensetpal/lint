@@ -1,26 +1,14 @@
 #!/usr/bin/env python3
 
-from tensorflow.keras.losses import Loss, BinaryCrossentropy
+from tensorflow.keras.activations import sigmoid
+from tensorflow.keras.losses import Loss
 from ..data.generator import extrapolate
 import tensorflow as tf
 
 
-class BCELoss(BinaryCrossentropy):
-    def __init__(self, limit):
-        super().__init__()
-        self.epoch = 0
-        self.limit = limit
-
-    def call(self, *args, **kwargs):
-        factor = 1 if self.epoch > self.limit else 0
-        return super().call(*args, **kwargs) * factor
-
-
 class CAMLoss(Loss):
-    def __init__(self, limit):
+    def __init__(self, _):
         super().__init__()
-        self.epoch = 0
-        self.limit = limit
         self.weights = None
 
     def call(self, labels, conv_outputs):
@@ -30,7 +18,8 @@ class CAMLoss(Loss):
 
             cam -= cam.min()
             cam /= cam.max()
+            cam = sigmoid(cam)
 
             return cam[:round(cam.shape[0] * .1), :].mean()
 
-        return 0 if self.epoch > self.limit else tf.math.log(tf.map_fn(fn=compute_loss, elems=conv_outputs) + 1)
+        return tf.math.log(tf.map_fn(fn=compute_loss, elems=conv_outputs) + 1)

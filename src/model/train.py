@@ -1,24 +1,15 @@
 #!/usr/bin/env python3
 
+from tensorflow.keras import backend as K
 from ..data.generator import get_dataset
-from .loss import CAMLoss, BCELoss
+from .callbacks import get_callbacks
 from .arch import get_model
+from .loss import CAMLoss
 import tensorflow as tf
 from .. import const
 import mlflow
 import sys
 import os
-
-
-def get_callbacks(threshold, parameter='val_loss'):
-    def schedule(epoch, lr):
-        if epoch != threshold: return lr
-        return lr * 1E-2
-
-    plt = tf.keras.callbacks.ReduceLROnPlateau(parameter, patience=const.EPOCHS * .5)  # NOQA F841
-    sch = tf.keras.callbacks.LearningRateScheduler(schedule)
-
-    return [sch]
 
 
 if __name__ == '__main__':
@@ -30,9 +21,11 @@ if __name__ == '__main__':
     model.summary()
 
     optimizer = tf.keras.optimizers.SGD(learning_rate=const.LEARNING_RATE)
-    losses = [BCELoss(const.LIMIT), CAMLoss(const.LIMIT)] if const.MODEL_NAME != name else 'binary_crossentropy'
+    loss_weights = [K.variable(0), K.variable(1)] if multiheaded else K.variable(1)
+    losses = ['binary_crossentropy', CAMLoss(loss_weights)] if const.MODEL_NAME != name else 'binary_crossentropy'
     model.compile(optimizer=optimizer,
                   loss=losses,
+                  loss_weights=loss_weights,
                   metrics={'output': 'accuracy'})
 
     if const.LOG: mlflow.tensorflow.autolog()
@@ -40,6 +33,10 @@ if __name__ == '__main__':
               epochs=const.EPOCHS,
               validation_data=val,
               use_multiprocessing=True,
-              callbacks=get_callbacks(const.LIMIT))
+              callbacks=get_callbacks(const.LIMIT, loss_weights))
+
+    model.compile(optimizer=optimizer,
+                  loss=losses,
+                  metrics={'output': 'accuracy'})  # recompiling since tensorflow does not serialize backend-tampered variables
     metrics = model.evaluate(test)
     model.save(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, name))

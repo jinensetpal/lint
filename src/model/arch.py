@@ -12,16 +12,13 @@ class Model(tf.keras.Model):
         np_config.enable_numpy_behavior()
 
     def train_step(self, data):
-        epoch = len(self.history.history.get('lr', [])) + 1
         weights = self.trainable_variables
         x, y = data
 
         with tf.GradientTape() as tape:
             y_pred = self(x, training=True)
 
-            if const.MODEL_NAME != self.name:
-                self.compiled_loss._losses[1].weights = weights[-2]
-                for loss in self.compiled_loss._losses: loss.epoch = epoch
+            if const.MODEL_NAME != self.name: self.compiled_loss._losses[1].weights = weights[-2]
             loss = self.compiled_loss(y, y_pred, regularization_losses=self.losses)
 
         gradients = tape.gradient(loss, weights)

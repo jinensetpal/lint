@@ -15,7 +15,7 @@ THRESHOLD = .97
 
 # training
 MODEL_NAME = 'default'
-LEARNING_RATE = 1E-3
+LEARNING_RATE = 1E-2
 BATCH_SIZE = 32
 EPOCHS = 10
 LIMIT = round(EPOCHS * .7)  # the point after which the routine switches into fine-tuning
