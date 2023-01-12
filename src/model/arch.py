@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from tensorflow.keras import layers
+from tensorflow.keras import layers, activations
 import tensorflow as tf
 from .. import const
 
@@ -37,7 +37,7 @@ def get_model(input_shape, classes, name, channels=3, multiheaded=True):
         x = layers.BatchNormalization()(x)
         x = layers.MaxPooling2D((2, 2))(x)
 
-    relu = layers.ReLU(name='relu')(x)
+    relu = layers.ReLU(name='activation_mapping')(x)
     x = layers.Flatten()(relu)
     for units in [128, 128, 64, 32]: x = layers.Dense(units, activation='relu')(x)
 

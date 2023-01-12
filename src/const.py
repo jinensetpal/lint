@@ -10,7 +10,7 @@ CAMS_SAVE_DIR = ['data', 'cams']
 PROD_MODEL_PATH = ['models',]
 
 # CAMs
-PENULTIMATE_LAYER = 'relu'
+PENULTIMATE_LAYER = 'activation_mapping'
 THRESHOLD = .97
 
 # training

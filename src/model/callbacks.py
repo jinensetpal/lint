@@ -8,7 +8,7 @@ from .. import const
 def get_callbacks(threshold, loss_weights, parameter='val_loss'):
     def schedule(epoch, lr):
         if epoch != threshold: return lr
-        return lr * 1E-2
+        return lr * 1E-1
 
     sch = tf.keras.callbacks.LearningRateScheduler(schedule)
     ls = LossManager(const.LIMIT, loss_weights)
@@ -22,6 +22,6 @@ class LossManager(tf.keras.callbacks.Callback):
         self.weights = weights
 
     def on_epoch_begin(self, epoch, logs=None):
-        if epoch == self.limit:
+        if epoch == self.limit and type(self.weights) == list:
             for weight, target in zip(self.weights, [K.variable(1), K.variable(0)]):
                 K.set_value(weight, target)
