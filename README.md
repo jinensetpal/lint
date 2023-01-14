@@ -3,11 +3,11 @@
 ## Idea
 [Class Activation Mappings (CAMs)](http://cnnlocalization.csail.mit.edu/) are a popular interpretability technique for CNNs. It allows us to identify the regions within the image that contribute to the final classification.
 
-I think they can be used within the training sequence against a kernel loss, so as to leveraged `shared knowledge' within a dataset. In this case, most targets in the dataset are centred. Using the CAM, we check if the region outside the center has a high weightage. We take the mean squared error of this region, with a higher weight the further we move from the center.
+I think they can be used within the training sequence against a kernel loss, so as to leveraged 'shared knowledge' within a dataset. In this case, most targets in the dataset are centred. Using the CAM, we check if the region outside the center has a high weightage. We take the mean squared error of this region, with a higher weight the further we move from the center.
 
-Since there is a high loss assigned to the background, the model is less likely to overfit, and attempt to memorize the background, even if the dataset itself doesn't account for that.
+Since there is a high loss assigned to the background, the model is less likely to overfit and attempt to memorize the background, even if the dataset alone doesn't account for that (e.g. with varied backgrounds).
 
-Since CNNs are resistant to pixel-shift, positional generalization is not an issue, and during prediction, teh model ide
+Since CNNs are resistant to pixel-shift, positional generalization is not an issue, and during prediction, the model identifies targets not in the center with about the same accuracy as centred images.
 
 ## Task Setup
 In this (largely contrived) example, the CALTECH-256 dataset is restricted to two classes: orcas and leopards, reducing it to a binary classification task.
@@ -23,6 +23,7 @@ The model with the updated training strategy tended to have better performance t
 The repository is structured as a package, so most of the relative imports are handled when the code is run using the `-m` flag.
 
 ### Setup
+From the root of the repository:
 
 ```bash
 pip install -r requirements.txt  # please use a virtual environment!
