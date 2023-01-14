@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from tensorflow.keras import layers, activations
+from tensorflow.keras import layers
 import tensorflow as tf
 from .. import const
 

@@ -20,8 +20,10 @@ class LossManager(tf.keras.callbacks.Callback):
     def __init__(self, limit, weights):
         self.limit = limit
         self.weights = weights
+        self.mapping = [K.variable(1), K.variable(0)]
 
     def on_epoch_begin(self, epoch, logs=None):
-        if epoch == self.limit and type(self.weights) == list:
-            for weight, target in zip(self.weights, [K.variable(1), K.variable(0)]):
+        if epoch in [self.limit, self.limit // 2] and type(self.weights) == list:
+            self.mapping = self.mapping[::-1]
+            for weight, target in zip(self.weights, self.mapping):
                 K.set_value(weight, target)

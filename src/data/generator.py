@@ -35,8 +35,7 @@ def extrapolate(conv_outputs, class_weights, symbolic=False):
     mat_for_mult = tf.image.resize(conv_outputs, const.IMAGE_SIZE)
 
     if symbolic: return tf.tensordot(mat_for_mult.reshape((const.IMAGE_SIZE[0] * const.IMAGE_SIZE[1], 32)), class_weights, 1).reshape(const.IMAGE_SIZE[0], const.IMAGE_SIZE[1])
-    mat_for_mult = mat_for_mult.numpy()
-    return np.dot(mat_for_mult.reshape((const.IMAGE_SIZE[0] * const.IMAGE_SIZE[1], 32)), class_weights).reshape(const.IMAGE_SIZE[0], const.IMAGE_SIZE[1])
+    return np.dot(mat_for_mult.numpy().reshape((const.IMAGE_SIZE[0] * const.IMAGE_SIZE[1], 32)), class_weights).reshape(const.IMAGE_SIZE[0], const.IMAGE_SIZE[1])
 
 
 if __name__ == '__main__':

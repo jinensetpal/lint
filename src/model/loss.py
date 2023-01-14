@@ -3,9 +3,8 @@
 from astropy.convolution import Gaussian2DKernel
 from tensorflow.keras.losses import Loss
 from ..data.generator import extrapolate
-from .. import const
 import tensorflow as tf
-import numpy as np
+from .. import const
 
 
 class CAMLoss(Loss):
@@ -18,4 +17,4 @@ class CAMLoss(Loss):
         def compute_loss(conv_output):
             return tf.tensordot(extrapolate(conv_output, self.weights[:, 0], symbolic=True), self.kernel, 1)
 
-        return tf.map_fn(fn=compute_loss, elems=conv_outputs)
+        return tf.reduce_mean(tf.map_fn(fn=compute_loss, elems=conv_outputs)) ** 2

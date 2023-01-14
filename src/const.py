@@ -17,7 +17,7 @@ THRESHOLD = .97
 MODEL_NAME = 'default'
 LEARNING_RATE = 1E-2
 BATCH_SIZE = 32
-EPOCHS = 10
+EPOCHS = 15
 LIMIT = round(EPOCHS * .7)  # the point after which the routine switches into fine-tuning
 SEED = 1024
 
@@ -29,4 +29,4 @@ IMAGE_SHAPE = IMAGE_SIZE + (N_CHANNELS,)
 
 # tracking
 MLFLOW_TRACKING_URI = 'https://dagshub.com/jinensetpal/tmls22.mlflow'
-LOG = False
+LOG = True

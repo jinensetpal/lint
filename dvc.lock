@@ -1,0 +1,150 @@
+schema: '2.0'
+stages:
+  camloss:
+    cmd: python -m src.model.train camloss
+    deps:
+    - path: data/test/
+      md5: 2c2366224ada979dac573ac795c52733.dir
+      size: 1079757
+      nfiles: 32
+    - path: data/train/
+      md5: a22025dbe3871ee89c4ce9e187f0a826.dir
+      size: 5529937
+      nfiles: 324
+    - path: data/val/
+      md5: 76170fae5f4c3f9f49015d3b08b164e0.dir
+      size: 465761
+      nfiles: 20
+    - path: src/const.py
+      md5: ea38ba80f8a2c3746cad7730d8e8e549
+      size: 733
+    - path: src/data/generator.py
+      md5: 4904deaf8134072212bbf397ed8155a2
+      size: 3230
+    - path: src/model/arch.py
+      md5: f369cc42276a63b337c7a16e253d04b0
+      size: 1619
+    - path: src/model/callbacks.py
+      md5: 3fc23587d0b684910374cd42b6f68146
+      size: 896
+    - path: src/model/loss.py
+      md5: eb613a60a7981e195784cf4ede8e6bb4
+      size: 742
+    - path: src/model/train.py
+      md5: b3d429933068cbca4665e506c40d9c07
+      size: 1574
+    outs:
+    - path: models/camloss/
+      md5: 4eb45c75468e9c44f3b612c04cf5dd76.dir
+      size: 19602845
+      nfiles: 5
+  camloss map:
+    cmd: python -m src.data.generator camloss
+    deps:
+    - path: data/test/
+      md5: 2c2366224ada979dac573ac795c52733.dir
+      size: 1079757
+      nfiles: 32
+    - path: data/train/
+      md5: a22025dbe3871ee89c4ce9e187f0a826.dir
+      size: 5529937
+      nfiles: 324
+    - path: data/val/
+      md5: 76170fae5f4c3f9f49015d3b08b164e0.dir
+      size: 465761
+      nfiles: 20
+    - path: models/camloss/
+      md5: 4eb45c75468e9c44f3b612c04cf5dd76.dir
+      size: 19602845
+      nfiles: 5
+    - path: src/const.py
+      md5: ea38ba80f8a2c3746cad7730d8e8e549
+      size: 733
+    - path: src/data/generator.py
+      md5: 4904deaf8134072212bbf397ed8155a2
+      size: 3230
+    - path: src/model/loss.py
+      md5: eb613a60a7981e195784cf4ede8e6bb4
+      size: 742
+    outs:
+    - path: data/cams/camloss.png
+      md5: 66c99bd20b1c3787b0b453b75e983446
+      size: 1218083
+    - path: data/cams/camloss/
+      md5: 8dc9ad437da8047b34934a028b916bc1.dir
+      size: 2539825
+      nfiles: 16
+  default:
+    cmd: python -m src.model.train default
+    deps:
+    - path: data/test/
+      md5: 2c2366224ada979dac573ac795c52733.dir
+      size: 1079757
+      nfiles: 32
+    - path: data/train/
+      md5: a22025dbe3871ee89c4ce9e187f0a826.dir
+      size: 5529937
+      nfiles: 324
+    - path: data/val/
+      md5: 76170fae5f4c3f9f49015d3b08b164e0.dir
+      size: 465761
+      nfiles: 20
+    - path: src/const.py
+      md5: ea38ba80f8a2c3746cad7730d8e8e549
+      size: 733
+    - path: src/data/generator.py
+      md5: 4904deaf8134072212bbf397ed8155a2
+      size: 3230
+    - path: src/model/arch.py
+      md5: f369cc42276a63b337c7a16e253d04b0
+      size: 1619
+    - path: src/model/callbacks.py
+      md5: 3fc23587d0b684910374cd42b6f68146
+      size: 896
+    - path: src/model/loss.py
+      md5: eb613a60a7981e195784cf4ede8e6bb4
+      size: 742
+    - path: src/model/train.py
+      md5: b3d429933068cbca4665e506c40d9c07
+      size: 1574
+    outs:
+    - path: models/default/
+      md5: 034752ec6c6fd564b68b877d4c08f539.dir
+      size: 19593210
+      nfiles: 5
+  default map:
+    cmd: python -m src.data.generator default
+    deps:
+    - path: data/test/
+      md5: 2c2366224ada979dac573ac795c52733.dir
+      size: 1079757
+      nfiles: 32
+    - path: data/train/
+      md5: a22025dbe3871ee89c4ce9e187f0a826.dir
+      size: 5529937
+      nfiles: 324
+    - path: data/val/
+      md5: 76170fae5f4c3f9f49015d3b08b164e0.dir
+      size: 465761
+      nfiles: 20
+    - path: models/default/
+      md5: 034752ec6c6fd564b68b877d4c08f539.dir
+      size: 19593210
+      nfiles: 5
+    - path: src/const.py
+      md5: ea38ba80f8a2c3746cad7730d8e8e549
+      size: 733
+    - path: src/data/generator.py
+      md5: 4904deaf8134072212bbf397ed8155a2
+      size: 3230
+    - path: src/model/loss.py
+      md5: eb613a60a7981e195784cf4ede8e6bb4
+      size: 742
+    outs:
+    - path: data/cams/default.png
+      md5: c63268433a0276348ffe69ce33696f4b
+      size: 1216189
+    - path: data/cams/default/
+      md5: 6e3d484ad58f0895260fc170776210fa.dir
+      size: 2541407
+      nfiles: 16
