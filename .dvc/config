@@ -2,4 +2,4 @@
     autostage = true
     analytics = false
 ['remote "origin"']
-    url = https://dagshub.com/jinensetpal/tmls22.dvc
+    url = https://dagshub.com/jinensetpal/lint.dvc

@@ -28,5 +28,5 @@ N_CLASSES = 2
 IMAGE_SHAPE = IMAGE_SIZE + (N_CHANNELS,)
 
 # tracking
-MLFLOW_TRACKING_URI = 'https://dagshub.com/jinensetpal/tmls22.mlflow'
+MLFLOW_TRACKING_URI = 'https://dagshub.com/jinensetpal/lint.mlflow'
 LOG = True
