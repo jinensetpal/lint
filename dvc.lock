@@ -16,8 +16,8 @@ stages:
       size: 465761
       nfiles: 20
     - path: src/const.py
-      md5: ea38ba80f8a2c3746cad7730d8e8e549
-      size: 733
+      md5: 3617c1bbd406c9edb938c1deab034e56
+      size: 731
     - path: src/data/generator.py
       md5: 4904deaf8134072212bbf397ed8155a2
       size: 3230
@@ -35,8 +35,8 @@ stages:
       size: 1574
     outs:
     - path: models/camloss/
-      md5: 4eb45c75468e9c44f3b612c04cf5dd76.dir
-      size: 19602845
+      md5: b91c4808099c05c7198c801191c89c44.dir
+      size: 19602285
       nfiles: 5
   camloss map:
     cmd: python -m src.data.generator camloss
@@ -54,12 +54,12 @@ stages:
       size: 465761
       nfiles: 20
     - path: models/camloss/
-      md5: 4eb45c75468e9c44f3b612c04cf5dd76.dir
-      size: 19602845
+      md5: b91c4808099c05c7198c801191c89c44.dir
+      size: 19602285
       nfiles: 5
     - path: src/const.py
-      md5: ea38ba80f8a2c3746cad7730d8e8e549
-      size: 733
+      md5: 3617c1bbd406c9edb938c1deab034e56
+      size: 731
     - path: src/data/generator.py
       md5: 4904deaf8134072212bbf397ed8155a2
       size: 3230
@@ -68,11 +68,11 @@ stages:
       size: 742
     outs:
     - path: data/cams/camloss.png
-      md5: 66c99bd20b1c3787b0b453b75e983446
-      size: 1218083
+      md5: 61a7f8173a9aaa7cfe8d03e2923ac67e
+      size: 1184885
     - path: data/cams/camloss/
-      md5: 8dc9ad437da8047b34934a028b916bc1.dir
-      size: 2539825
+      md5: e12b21f9c9cd699b8623d86938f79e14.dir
+      size: 2460189
       nfiles: 16
   default:
     cmd: python -m src.model.train default
@@ -90,8 +90,8 @@ stages:
       size: 465761
       nfiles: 20
     - path: src/const.py
-      md5: ea38ba80f8a2c3746cad7730d8e8e549
-      size: 733
+      md5: 3617c1bbd406c9edb938c1deab034e56
+      size: 731
     - path: src/data/generator.py
       md5: 4904deaf8134072212bbf397ed8155a2
       size: 3230
@@ -109,8 +109,8 @@ stages:
       size: 1574
     outs:
     - path: models/default/
-      md5: 034752ec6c6fd564b68b877d4c08f539.dir
-      size: 19593210
+      md5: 227259f5a848d25cd10af9bec53359c4.dir
+      size: 29228800
       nfiles: 5
   default map:
     cmd: python -m src.data.generator default
@@ -128,12 +128,12 @@ stages:
       size: 465761
       nfiles: 20
     - path: models/default/
-      md5: 034752ec6c6fd564b68b877d4c08f539.dir
-      size: 19593210
+      md5: 227259f5a848d25cd10af9bec53359c4.dir
+      size: 29228800
       nfiles: 5
     - path: src/const.py
-      md5: ea38ba80f8a2c3746cad7730d8e8e549
-      size: 733
+      md5: 3617c1bbd406c9edb938c1deab034e56
+      size: 731
     - path: src/data/generator.py
       md5: 4904deaf8134072212bbf397ed8155a2
       size: 3230
@@ -142,9 +142,9 @@ stages:
       size: 742
     outs:
     - path: data/cams/default.png
-      md5: c63268433a0276348ffe69ce33696f4b
-      size: 1216189
+      md5: 16efbe496e30241caf9dbd56a9b79187
+      size: 1179140
     - path: data/cams/default/
-      md5: 6e3d484ad58f0895260fc170776210fa.dir
-      size: 2541407
+      md5: 52574e7ccc9529fcc8b91e008defd899.dir
+      size: 2439757
       nfiles: 16
