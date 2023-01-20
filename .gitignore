@@ -76,9 +76,6 @@ target/
 .ipynb_checkpoints/
 
 # exclude data from source control by default
-/data/
-
-# Mac OS-specific storage files
 .DS_Store
 
 # vim
@@ -87,7 +84,6 @@ target/
 
 # Mypy cache
 .mypy_cache/
-/data
 
 mlruns
 mlartifacts
