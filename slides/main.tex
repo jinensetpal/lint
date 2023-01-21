@@ -1,5 +1,7 @@
 \documentclass{beamer}
 \usepackage[utf8]{inputenc}
+\usepackage{textcomp}  % Required for encoding \textbigcircle
+\usepackage{scalerel}  % Required for emoji \scalerel
 \usepackage{enumitem}
 \usepackage{listings}
 \usepackage{textcomp}
@@ -10,6 +12,7 @@
 \usepackage[T1]{fontenc}
 \renewcommand*\oldstylenums[1]{{\fontfamily{Montserrat-TOsF}\selectfont #1}}
 
+\def\tada{\scalerel*{\includegraphics{img/1f389.eps}}{\textrm{\textbigcircle}}}
 
 \usetheme{Madrid}
 \definecolor{theme}{rgb}{0.06274509803921569, 0.18823529411764706, 0.21568627450980393}
@@ -25,11 +28,11 @@
 %Title page
 \title[Leveraging Machine Interpretability]{Interpretability Tools as Feedback Loops}
 
-\subtitle{Toronto Machine Learning Summit 2022}
+\subtitle{BoilerMake X}
 
 \author{J.~Setpal}
 
-\date{November 30, 2022}
+\date{January 21, 2023}
 
 \titlegraphic{\includegraphics[width=7cm]{img/logo-full.png}}
 
@@ -94,23 +97,22 @@
 \begin{frame}{Last Bit of Scenario, I Promise}
 	We use:
 	\begin{enumerate}[label=\alph*.]
-		\item Optimizer: \texttt{Adam}
+		\item Optimizer: \texttt{SGD}
 			\begin{enumerate}[label=-]
 				\item Learning Rate: $10^{-2}$
 				\item Epsilon: $10^{-8}$
 			\end{enumerate}
 		\item Loss: \texttt{BinaryCrossEntropy}
+		\item Epochs: 5
 	\end{enumerate} \pause
-	After training, we achieve a test accuracy of \texttt{0.5000}. This \textit{sucks}. \pause \newline \\
+	During training, our training and validation accuracies are $\approx$ \texttt{1.000} \tada \pause \\
+	However, we achieve a \textbf{test accuracy} of only \texttt{0.5938}. This \textit{sucks}. \pause \\
 
 	Here are some misclassified samples:
 	\begin{center}
 		\hspace*{-7em}
 		\includegraphics[width=10cm]{img/misclassifications}
 	\end{center}
-
-	\vspace{-1em}
-	How can we diagnose the cause of this?
 \end{frame}
 
 \section{Baselining Interpretability}
@@ -131,23 +133,10 @@
 \end{frame}
 
 \begin{frame}{A Cautionary Tale}
-	\begin{columns}
-		\begin{column}{.6\textwidth}
-			\begin{figure}
-				\hspace*{.5em}
-				\includegraphics[width=.98\textwidth]{img/bias}
-				\vspace{-1.5em}
-				\centering
-				\caption*{\footnotesize \ \ \ \ \ \url{https://interaktiv.br.de/ki-bewerbung/en/}}
-			\end{figure}
-		\end{column}
-		\begin{column}{.03\textwidth}
-		\end{column}
-		\begin{column}{.4\textwidth}
-			Start-up attempting to make the application process `faster, but also more objective and fair'. \pause \newline \\
-			They were not successful.
-		\end{column}
-	\end{columns}
+	Let's explore: \url{https://interaktiv.br.de/ki-bewerbung/en/} \newline \\
+
+	Start-up attempting to make the application process `faster, but also more objective and fair'. \pause \newline \\
+	They were not successful.
 \end{frame}
 
 \begin{frame}{Class Activation Mappings}
@@ -177,12 +166,32 @@
 	So, the idea here is simple: use \underline{shared knowledge} (+ common sense) to modify how we train our models.
 \end{frame}
 
+\begin{frame}{Updating the Search Space}
+	We approach the challenge in the \textit{opposite} direction. \pause Instead of optimizing how we solve the search space, let's \textbf{update the search space} itself! \pause \newline \\
+
+	\begin{columns}
+		\begin{column}{.3\textwidth}
+			\begin{figure}
+				\includegraphics[width=4.5cm]{img/space.png}
+				\caption*{\footnotesize Updated Search Space!}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			By updating our loss function to eliminate \textit{pseudo-correctness}, we can: \pause
+			\begin{enumerate}[label=-]
+				\item Make the optimal weights incredibly easy for our optimzer to find. \pause
+				\item Allow our generalized model to \underline{extrapolate on implicit information}.
+			\end{enumerate}
+		\end{column}
+	\end{columns}
+\end{frame}
+
 \section{Leveraging Interpretability}
 \begin{frame}{Getting Back to the Challenge}
 	There are some obvious causes for why it performs poorly:
 	\begin{enumerate}[label=\alph*.]
 		\item There are too few, unbalanced training samples. \pause \\
-			\underline{Solution:} Data Augmentation \pause
+			\underline{Solution:} Data Augmentation / Covariate Shift \pause
 		\item \textbf{The images have a sharp color dominance.} \pause
 			\begin{center}
 				\vspace{-1em}
@@ -207,12 +216,31 @@
 	Q: Can we exploit this?
 \end{frame}
 
+\begin{frame}{Exploiting a Centred Dataset}
+	Idea: Let's penalize our batch whenever the CAM is off-center. \pause \newline \\
+
+	We can achieve this by inverting a 2D Gaussian Kernel.
+	\begin{columns}
+		\begin{column}{.4\textwidth}
+			\begin{figure}
+				\includegraphics[width=\textwidth]{img/kernel}
+				\caption*{\footnotesize Inverted Gaussian Kernel}
+			\end{figure} \pause
+		\end{column}
+		\begin{column}{.6\textwidth}
+			Weights scale sharply as the operation approaches the image boundary. \pause \newline \\
+
+			It has to \underline{not} be perfect, since we don't intend to overfit our model to this setup. This kernel filter is a \textbf{guideline}.
+		\end{column}
+	\end{columns}
+\end{frame}
+
 \begin{frame}{Introducing \texttt{CAMLoss}!}
-	Here's the idea:
+	Here's how it all comes together: 
 	\begin{enumerate}[label=\alph*.]
 		\item In addition to the prediction, we output the class activation map. \pause
-		\item We extract a random subset of the \textbf{top portion} of the map. \pause
-		\item We return the mean of the weights. Weights $\propto \frac{1}{\text{Fit Quality}}$ \pause
+		\item We apply our kernel filter on every batch. \pause
+		\item We return the mean of the returned features. Weights $\propto \frac{1}{\text{Fit Quality}}$ \pause
 		\item This is our additional self-supervised loss function! \pause
 	\end{enumerate}
 	Obtaining the Class Activation Map of the updated model, we observe:
@@ -224,12 +252,18 @@
 	\textbf{Great Success!}
 \end{frame}
 
+\begin{frame}{Implementation Details}
+	\begin{center}
+                If you can view this screen, I am making a mistake.
+        \end{center}
+\end{frame}
+
 \begin{frame}{Thank you!}
 	\begin{center}
 		Have an awesome rest of your day! Any questions for me?
 	\end{center}
 	\begin{center}
-		\textbf{Code, Experiments, Data, Slides:} \url{https://dagshub.com/jinensetpal/tmls22.git}
+		\textbf{Code, Experiments, Data, Slides:} \url{https://dagshub.com/jinensetpal/lint.git}
 	\end{center}
 \end{frame}
 
