@@ -28,7 +28,7 @@ if __name__ == '__main__':
                   loss_weights=loss_weights,
                   metrics={'output': 'accuracy'})
 
-    if const.LOG: mlflow.tensorflow.autolog()
+    if const.LOG: mlflow.tensorflow.autolog(log_models=False)
     model.fit(train,
               epochs=const.EPOCHS,
               validation_data=val,
