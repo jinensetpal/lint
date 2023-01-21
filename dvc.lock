@@ -35,7 +35,7 @@ stages:
       size: 1590
     outs:
     - path: models/camloss/
-      md5: b3a324609b49881476733a1962f67af4.dir
+      md5: df4977bce37af27e03813f522e8fe6cd.dir
       size: 19602296
       nfiles: 5
   camloss map:
@@ -54,7 +54,7 @@ stages:
       size: 465761
       nfiles: 20
     - path: models/camloss/
-      md5: b3a324609b49881476733a1962f67af4.dir
+      md5: df4977bce37af27e03813f522e8fe6cd.dir
       size: 19602296
       nfiles: 5
     - path: src/const.py
@@ -68,11 +68,11 @@ stages:
       size: 742
     outs:
     - path: data/cams/camloss.png
-      md5: 8901cdaac1373e3f337b23c3384a6246
-      size: 1188725
+      md5: 7625f377bf8a5315dce00d8d09f533fc
+      size: 1201477
     - path: data/cams/camloss/
-      md5: 7b3d5256fad9844ee485dbea06505cab.dir
-      size: 2456552
+      md5: 9144cd627d74a2643482c726b273d544.dir
+      size: 2489346
       nfiles: 16
   default:
     cmd: python -m src.model.train default
@@ -109,7 +109,7 @@ stages:
       size: 1590
     outs:
     - path: models/default/
-      md5: 07137f35e7ae0c4bca4203a79959fbaa.dir
+      md5: 381573bdbe87a8a86b7d42ae978ca270.dir
       size: 19593207
       nfiles: 5
   default map:
@@ -128,7 +128,7 @@ stages:
       size: 465761
       nfiles: 20
     - path: models/default/
-      md5: 07137f35e7ae0c4bca4203a79959fbaa.dir
+      md5: 381573bdbe87a8a86b7d42ae978ca270.dir
       size: 19593207
       nfiles: 5
     - path: src/const.py
@@ -142,9 +142,9 @@ stages:
       size: 742
     outs:
     - path: data/cams/default.png
-      md5: 8053fba454fd06685d085e7b97dab5c9
-      size: 1201153
+      md5: 10d05bf144f08566243f3307d3fc71d7
+      size: 1180788
     - path: data/cams/default/
-      md5: b7d9478dbe1975a89c55afcb6ad040c4.dir
-      size: 2497555
+      md5: 45cd76ca66c98a4979e0451d190c5c6f.dir
+      size: 2457475
       nfiles: 16
