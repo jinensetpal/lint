@@ -35,8 +35,8 @@ stages:
       size: 1574
     outs:
     - path: models/camloss/
-      md5: b91c4808099c05c7198c801191c89c44.dir
-      size: 19602285
+      md5: 6729ab4bf32de3dc00a54f8c21899d30.dir
+      size: 19602845
       nfiles: 5
   camloss map:
     cmd: python -m src.data.generator camloss
@@ -54,8 +54,8 @@ stages:
       size: 465761
       nfiles: 20
     - path: models/camloss/
-      md5: b91c4808099c05c7198c801191c89c44.dir
-      size: 19602285
+      md5: 6729ab4bf32de3dc00a54f8c21899d30.dir
+      size: 19602845
       nfiles: 5
     - path: src/const.py
       md5: 3617c1bbd406c9edb938c1deab034e56
@@ -68,11 +68,11 @@ stages:
       size: 742
     outs:
     - path: data/cams/camloss.png
-      md5: 61a7f8173a9aaa7cfe8d03e2923ac67e
-      size: 1184885
+      md5: 7d29a4493b265bc121c471d840750f7d
+      size: 1146528
     - path: data/cams/camloss/
-      md5: e12b21f9c9cd699b8623d86938f79e14.dir
-      size: 2460189
+      md5: 33b0ece7b54c252ec914f7c6d26d340d.dir
+      size: 2376691
       nfiles: 16
   default:
     cmd: python -m src.model.train default
@@ -109,8 +109,8 @@ stages:
       size: 1574
     outs:
     - path: models/default/
-      md5: 227259f5a848d25cd10af9bec53359c4.dir
-      size: 29228800
+      md5: 8b1c5ca982c2220324bc9bef585213a0.dir
+      size: 19593210
       nfiles: 5
   default map:
     cmd: python -m src.data.generator default
@@ -128,8 +128,8 @@ stages:
       size: 465761
       nfiles: 20
     - path: models/default/
-      md5: 227259f5a848d25cd10af9bec53359c4.dir
-      size: 29228800
+      md5: 8b1c5ca982c2220324bc9bef585213a0.dir
+      size: 19593210
       nfiles: 5
     - path: src/const.py
       md5: 3617c1bbd406c9edb938c1deab034e56
@@ -142,9 +142,9 @@ stages:
       size: 742
     outs:
     - path: data/cams/default.png
-      md5: 16efbe496e30241caf9dbd56a9b79187
-      size: 1179140
+      md5: 7c801ac6979ba3e2c6751f50b20179ec
+      size: 1174253
     - path: data/cams/default/
-      md5: 52574e7ccc9529fcc8b91e008defd899.dir
-      size: 2439757
+      md5: e5c2f7e91b63fd961fe451caaa19dc2e.dir
+      size: 2424754
       nfiles: 16

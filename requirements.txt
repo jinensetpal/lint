@@ -3,3 +3,7 @@ tensorflow==2.11.0
 dvc==2.35.1
 opencv-python==4.6.0.66
 ipykernel==6.18.2
+astropy==5.2.1
+tensorflow==2.11.0
+tensorflow-estimator==2.11.0
+tensorflow-io-gcs-filesystem==0.29.0
