@@ -4,7 +4,7 @@ from pathlib import Path
 
 # directories
 BASE_DIR = Path(__file__).parent.parent.as_posix()
-DATA_PATHS = [['data', 'train'], ['data', 'val'], ['data', 'test']]
+DATA_PATHS = ['data', 'metadata.csv']
 SAMPLE_SAVE_DIR = ['data', 'samples']
 CAMS_SAVE_DIR = ['data', 'cams']
 PROD_MODEL_PATH = ['models',]

@@ -367,3 +367,4 @@ TSWLatexianTemp*
 # Makeindex log files
 *.lpz
 .writeup
+/data
