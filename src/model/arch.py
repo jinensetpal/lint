@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from tensorflow.keras.applications import resnet50
 from tensorflow.keras import layers
 import tensorflow as tf
 from .. import const
@@ -30,18 +31,16 @@ class Model(tf.keras.Model):
 
 
 def get_model(input_shape, classes, name, channels=3, multiheaded=True):
-    input = tf.keras.Input(shape=input_shape)
-    x = layers.Conv2D(16, kernel_size=(2, 2), padding='same')(input)
-    for filters in [16, 64, 32]:
-        x = layers.Conv2D(filters, kernel_size=(2, 2), padding='same')(x)
-        x = layers.BatchNormalization()(x)
-        x = layers.MaxPooling2D((2, 2))(x)
+    classes -= 1 if classes == 2 else 0
 
-    relu = layers.ReLU(name='activation_mapping')(x)
-    x = layers.Flatten()(relu)
-    for units in [128, 128, 64, 32]: x = layers.Dense(units, activation='relu')(x)
+    backbone = resnet50.ResNet50(weights='imagenet',
+                                 include_top=False,
+                                 input_shape=(*input_shape, channels))
+    x = layers.GlobalAveragePooling2D()(backbone.output)
+    x = layers.Dense(classes, activation='sigmoid' if classes == 1 else 'softmax', name='output')(x)
+    outputs = x # [x, relu] if multiheaded else x
 
-    x = layers.Dense(1, activation='sigmoid', name='output')(x)
-    outputs = [x, relu] if multiheaded else x
+    return Model(inputs=backbone.input, outputs=outputs, name=name)
 
-    return Model(inputs=input, outputs=outputs, name=name)
+if __name__ == '__main__':
+    get_model(const.IMAGE_SIZE, const.N_CLASSES, 'default').summary()

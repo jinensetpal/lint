@@ -22,7 +22,7 @@ LIMIT = round(EPOCHS * .7)  # the point after which the routine switches into fi
 SEED = 1024
 
 # dataset
-IMAGE_SIZE = (192, 192)
+IMAGE_SIZE = (224, 224)
 N_CHANNELS = 3
 N_CLASSES = 2
 IMAGE_SHAPE = IMAGE_SIZE + (N_CHANNELS,)
