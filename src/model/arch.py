@@ -38,9 +38,10 @@ def get_model(input_shape, classes, name, channels=3, multiheaded=True):
                                  input_shape=(*input_shape, channels))
     x = layers.GlobalAveragePooling2D()(backbone.output)
     x = layers.Dense(classes, activation='sigmoid' if classes == 1 else 'softmax', name='output')(x)
-    outputs = x # [x, relu] if multiheaded else x
+    outputs = x  # [x, relu] if multiheaded else x
 
     return Model(inputs=backbone.input, outputs=outputs, name=name)
+
 
 if __name__ == '__main__':
     get_model(const.IMAGE_SIZE, const.N_CLASSES, 'default').summary()

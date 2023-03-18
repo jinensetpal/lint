@@ -1,18 +1,78 @@
 #!/usr/bin/env python3
 
-from tensorflow.keras.utils import image_dataset_from_directory
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from pathlib import Path, PosixPath
 from tensorflow import keras
 import tensorflow as tf
+from PIL import Image
 from .. import const
+import pandas as pd
 import numpy as np
+import random
 import os
 
 
+class DataGenerator(tf.keras.utils.Sequence):
+    'Generates data for Keras'
+    def __init__(self, df, batch_size=32, dim=(224, 224), n_channels=1,
+                 shuffle=True, split='train', seed=0):
+        'Initialization'
+        if type(df) == PosixPath: df = pd.read_csv(df) 
+        self.df = df
+        self.dim = dim
+        self.batch_size = batch_size
+        self.n_channels = n_channels
+        self.shuffle = shuffle
+        if split not in const.ENCODINGS['split']: split = 'all'
+        self.split = split
+        self.indexes = {}
+        self.on_epoch_end()
+        random.seed(seed)
+        self.gen = ImageDataGenerator()
+
+    def __len__(self):
+        'Denotes the number of batches per epoch'
+        return int(self.df.shape[0] / self.batch_size)
+
+    def __getitem__(self, index):
+        'Generate one batch of data'
+        # Generate indexes of the batch
+        indexes = self.indexes[self.split][index*self.batch_size:(index+1)*self.batch_size]
+
+        # Find list of IDs
+        ids = [self.df.iloc[k] for k in indexes]
+
+        # Generate data
+        return self.__data_generation(ids)
+
+    def on_epoch_end(self):
+        'Updates indexes after each epoch'
+        for split in range(3):
+            self.indexes[const.ENCODINGS['split'][split]] = np.array(self.df[self.df['split'] == split]['img_id'])
+        self.indexes['all'] = np.arange(self.df.shape[0]) 
+
+        if self.shuffle: 
+            for split in self.indexes: np.random.shuffle(self.indexes[split])
+
+    def __data_generation(self, IDs):
+        'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
+        # Initialization
+        X = np.empty((self.batch_size, *self.dim, self.n_channels))
+        y = np.empty((self.batch_size), dtype=object)
+        
+        # Generate data
+        for idx, id in enumerate(IDs):
+            X[idx] = Image.open(os.path.join(const.BASE_DIR, *const.DATA_PATH, id['img_filename'])).resize(const.IMAGE_SIZE)
+            y[idx] = id['y']
+
+        return tf.convert_to_tensor(X, dtype=tf.float32), tf.convert_to_tensor(y, dtype=tf.float32)
+
+
+
 def get_dataset():
-    return [image_dataset_from_directory(os.path.join(const.BASE_DIR, *path),
-                                         image_size=const.IMAGE_SIZE,
-                                         batch_size=const.BATCH_SIZE,
-                                         seed=const.SEED) for path in const.DATA_PATHS]
+    return [DataGenerator(Path(os.path.join(const.BASE_DIR, *const.DATA_PATH, 'metadata.csv')), 
+                          const.BATCH_SIZE, const.IMAGE_SIZE, const.N_CHANNELS, 
+                          split=split) for split in const.ENCODINGS['split']]
 
 
 def get_class_activation_map(model, img):
@@ -44,7 +104,6 @@ if __name__ == '__main__':
     from cv2 import resize, INTER_CUBIC
     from ..model.loss import CAMLoss
     import matplotlib.pyplot as plt
-    from pathlib import Path
     from PIL import Image
     import sys
 

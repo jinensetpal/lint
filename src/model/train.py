@@ -17,7 +17,7 @@ if __name__ == '__main__':
     multiheaded = const.MODEL_NAME != name
 
     train, val, test = get_dataset()
-    model = get_model(const.IMAGE_SHAPE, const.N_CLASSES, name, const.N_CHANNELS, multiheaded=multiheaded)
+    model = get_model(const.IMAGE_SIZE, const.N_CLASSES, name, const.N_CHANNELS, multiheaded=multiheaded)
     model.summary()
 
     optimizer = tf.keras.optimizers.SGD(learning_rate=const.LEARNING_RATE)
