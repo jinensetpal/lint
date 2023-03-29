@@ -7,8 +7,9 @@ from .. import const
 
 
 class Model(tf.keras.Model):
-    def __init__(self, **args):
-        super().__init__(**args)
+    def __init__(self, *args, multiheaded=True, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.multiheaded = multiheaded
         from tensorflow.python.ops.numpy_ops import np_config
         np_config.enable_numpy_behavior()
 
@@ -19,7 +20,7 @@ class Model(tf.keras.Model):
         with tf.GradientTape() as tape:
             y_pred = self(x, training=True)
 
-            if const.MODEL_NAME != self.name: self.compiled_loss._losses[1].weights = weights[-2]
+            if self.multiheaded: self.compiled_loss._losses[1].weights = weights[-2]
             loss = self.compiled_loss(y, y_pred, regularization_losses=self.losses)
 
         gradients = tape.gradient(loss, weights)
@@ -38,10 +39,13 @@ def get_model(input_shape, classes, name, channels=3, multiheaded=True):
                                  input_shape=(*input_shape, channels))
     x = layers.GlobalAveragePooling2D()(backbone.output)
     x = layers.Dense(classes, activation='sigmoid' if classes == 1 else 'softmax', name='output')(x)
-    outputs = x  # [x, relu] if multiheaded else x
+    relu = backbone.get_layer('conv5_block3_out').output
+    outputs = [x, relu] if multiheaded else x
 
-    return Model(inputs=backbone.input, outputs=outputs, name=name)
+    return Model(inputs=backbone.input, outputs=outputs, name=name, multiheaded=multiheaded)
 
 
 if __name__ == '__main__':
-    get_model(const.IMAGE_SIZE, const.N_CLASSES, 'default').summary()
+    import sys
+
+    get_model(const.IMAGE_SIZE, const.N_CLASSES, 'default', multiheaded=bool(len(sys.argv) - 1)).summary()
