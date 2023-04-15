@@ -40,4 +40,4 @@ if __name__ == '__main__':
                   loss=losses,
                   metrics={'output': 'accuracy'})  # recompiling since tensorflow does not serialize backend-tampered variables
     metrics = model.evaluate(test)
-    model.save(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, name))
+    model.save(os.path.join(const.BASE_DIR, *const.SAVED_MODEL_PATH, name))

@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).parent.parent.as_posix()
 DATA_PATH = ['data',]
 SAMPLE_SAVE_DIR = ['data', 'samples']
 CAMS_SAVE_DIR = ['data', 'cams']
-PROD_MODEL_PATH = ['models',]
+SAVED_MODEL_PATH = ['models',]
 
 # CAMs
 PENULTIMATE_LAYER = 'activation_mapping'

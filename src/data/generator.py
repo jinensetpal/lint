@@ -15,7 +15,7 @@ import os
 class DataGenerator(tf.keras.utils.Sequence):
     'Generates data for Keras'
     def __init__(self, df, batch_size=32, dim=(224, 224), n_channels=1,
-                 shuffle=True, split='train', seed=0):
+                 state = 'training', shuffle=True, split='train', seed=0):
         'Initialization'
         if type(df) == PosixPath: df = pd.read_csv(df) 
         self.df = df
@@ -23,6 +23,7 @@ class DataGenerator(tf.keras.utils.Sequence):
         self.batch_size = batch_size
         self.n_channels = n_channels
         self.shuffle = shuffle
+        self.state = state
         if split not in const.ENCODINGS['split']: split = 'all'
         self.split = split
         self.indexes = {}
@@ -58,20 +59,23 @@ class DataGenerator(tf.keras.utils.Sequence):
         # Initialization
         X = np.empty((self.batch_size, *self.dim, self.n_channels))
         y = np.empty((self.batch_size), dtype=np.float32)
+        p = np.empty((self.batch_size), dtype=np.float32)
         
         # Generate data
         for idx, id in enumerate(IDs):
             X[idx] = Image.open(os.path.join(const.BASE_DIR, *const.DATA_PATH, id['img_filename'])).resize(const.IMAGE_SIZE)
             y[idx] = id['y']
+            p[idx] = id['place']
+        X, y, p = tf.convert_to_tensor(X, dtype=tf.float32), tf.convert_to_tensor(y, dtype=tf.float32), tf.convert_to_tensor(p, dtype=tf.float32)
 
-        return tf.convert_to_tensor(X, dtype=tf.float32), tf.convert_to_tensor(y, dtype=tf.float32)
+        if self.state != 'training': return X, y, p
+        return X, y
 
 
-
-def get_dataset():
+def get_dataset(state='training'):
     return [DataGenerator(Path(os.path.join(const.BASE_DIR, *const.DATA_PATH, 'metadata.csv')), 
-                          const.BATCH_SIZE, const.IMAGE_SIZE, const.N_CHANNELS, const.SHUFFLE,
-                          split=split) for split in const.ENCODINGS['split']]
+                          const.BATCH_SIZE, const.IMAGE_SIZE, const.N_CHANNELS, shuffle=const.SHUFFLE,
+                          state=state, split=split) for split in const.ENCODINGS['split']]
 
 
 def get_class_activation_map(model, img):
@@ -112,7 +116,7 @@ if __name__ == '__main__':
     test.__getitem__(0)
 
     # name = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
-    # model = load_model(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, name),
+    # model = load_model(os.path.join(const.BASE_DIR, *const.SAVED_MODEL_PATH, name),
     #                    custom_objects={'CAMLoss': CAMLoss},
     #                    compile=False)
 
