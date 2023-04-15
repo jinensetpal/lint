@@ -32,23 +32,22 @@ class DataGenerator(tf.keras.utils.Sequence):
 
     def __len__(self):
         'Denotes the number of batches per epoch'
-        return int(self.df.shape[0] / self.batch_size)
+        return int(self.indexes[self.split].shape[0] / self.batch_size)
 
     def __getitem__(self, index):
         'Generate one batch of data'
         # Generate indexes of the batch
         indexes = self.indexes[self.split][index*self.batch_size:(index+1)*self.batch_size]
+        np.random.shuffle(indexes)
 
-        # Find list of IDs
-        ids = [self.df.iloc[k] for k in indexes]
+        ids = [self.df.iloc[index] for index in indexes]
 
-        # Generate data
         return self.__data_generation(ids)
 
     def on_epoch_end(self):
         'Updates indexes after each epoch'
         for split in range(3):
-            self.indexes[const.ENCODINGS['split'][split]] = np.array(self.df[self.df['split'] == split]['img_id'])
+            self.indexes[const.ENCODINGS['split'][split]] = np.array(self.df[self.df['split'] == split]['img_id']) - 1
         self.indexes['all'] = np.arange(self.df.shape[0]) 
 
         if self.shuffle: 
@@ -58,7 +57,7 @@ class DataGenerator(tf.keras.utils.Sequence):
         'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
         # Initialization
         X = np.empty((self.batch_size, *self.dim, self.n_channels))
-        y = np.empty((self.batch_size), dtype=object)
+        y = np.empty((self.batch_size), dtype=np.float32)
         
         # Generate data
         for idx, id in enumerate(IDs):
@@ -71,7 +70,7 @@ class DataGenerator(tf.keras.utils.Sequence):
 
 def get_dataset():
     return [DataGenerator(Path(os.path.join(const.BASE_DIR, *const.DATA_PATH, 'metadata.csv')), 
-                          const.BATCH_SIZE, const.IMAGE_SIZE, const.N_CHANNELS, 
+                          const.BATCH_SIZE, const.IMAGE_SIZE, const.N_CHANNELS, const.SHUFFLE,
                           split=split) for split in const.ENCODINGS['split']]
 
 
@@ -108,35 +107,39 @@ if __name__ == '__main__':
     import sys
 
     train, val, test = get_dataset()
-    name = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
-    model = load_model(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, name),
-                       custom_objects={'CAMLoss': CAMLoss},
-                       compile=False)
+    train.__getitem__(0)
+    val.__getitem__(0)
+    test.__getitem__(0)
 
-    fig = plt.figure(figsize=(14, 14),
-                     facecolor='white')
+    # name = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
+    # model = load_model(os.path.join(const.BASE_DIR, *const.PROD_MODEL_PATH, name),
+    #                    custom_objects={'CAMLoss': CAMLoss},
+    #                    compile=False)
 
-    Path(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, name)).mkdir(parents=True, exist_ok=True)
-    for idx, (X, y) in enumerate(zip(*test.__iter__().next())):
-        X = X.numpy()
-        if idx == 16: break
+    # fig = plt.figure(figsize=(14, 14),
+    #                  facecolor='white')
 
-        img = resize(X, dsize=const.IMAGE_SIZE, interpolation=INTER_CUBIC)
-        out, pred = get_class_activation_map(model, img)
-        img = resize(X, dsize=const.IMAGE_SIZE, interpolation=INTER_CUBIC)
-        img = Image.fromarray(img.astype('uint8'), 'RGB')
+    # Path(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, name)).mkdir(parents=True, exist_ok=True)
+    # for idx, (X, y) in enumerate(zip(*test.__iter__().next())):
+    #     X = X.numpy()
+    #     if idx == 16: break
 
-        plt.figure(1)
-        fig.add_subplot(4, 4, idx + 1)
-        plt.imshow(img, alpha=0.5)
-        plt.imshow(out, cmap='jet', alpha=0.5)
+    #     img = resize(X, dsize=const.IMAGE_SIZE, interpolation=INTER_CUBIC)
+    #     out, pred = get_class_activation_map(model, img)
+    #     img = resize(X, dsize=const.IMAGE_SIZE, interpolation=INTER_CUBIC)
+    #     img = Image.fromarray(img.astype('uint8'), 'RGB')
 
-        plt.figure(2)
-        plt.imshow(img, alpha=0.5)
-        plt.imshow(out, cmap='jet', alpha=0.5)
-        plt.savefig(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, name, f'{idx}.png'))
-        plt.clf()
-    plt.tight_layout()
+    #     plt.figure(1)
+    #     fig.add_subplot(4, 4, idx + 1)
+    #     plt.imshow(img, alpha=0.5)
+    #     plt.imshow(out, cmap='jet', alpha=0.5)
 
-    Path(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR)).mkdir(parents=True, exist_ok=True)
-    fig.savefig(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, f'{name}.png'))
+    #     plt.figure(2)
+    #     plt.imshow(img, alpha=0.5)
+    #     plt.imshow(out, cmap='jet', alpha=0.5)
+    #     plt.savefig(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, name, f'{idx}.png'))
+    #     plt.clf()
+    # plt.tight_layout()
+
+    # Path(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR)).mkdir(parents=True, exist_ok=True)
+    # fig.savefig(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, f'{name}.png'))
