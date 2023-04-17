@@ -10,13 +10,13 @@ CAMS_SAVE_DIR = ['data', 'cams']
 SAVED_MODEL_PATH = ['models',]
 
 # CAMs
-PENULTIMATE_LAYER = 'activation_mapping'
+PENULTIMATE_LAYER = 'conv5_block3_out'
 THRESHOLD = .97
 
 # training
 MODEL_NAME = 'default'
-LEARNING_RATE = 1E-3
-BATCH_SIZE = 64
+LEARNING_RATE = 1E-4
+BATCH_SIZE = 24
 SHUFFLE = False
 MOMENTUM = 0.9
 EPOCHS = 30

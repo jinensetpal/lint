@@ -12,7 +12,9 @@ import os
 def group_accuracy(model, gen):
     grp = {}
     for (x, y, p) in gen:
-        acc = tf.experimental.numpy.ravel(tf.cast(model(x) > 0.5, tf.float32)) == y
+        pred = model(x)
+        if type(pred) == list: pred = pred[0]
+        acc = tf.experimental.numpy.ravel(tf.cast(pred > 0.5, tf.float32)) == y
 
         for label in [0,1]:
             for place in [0, 1]:
@@ -23,7 +25,6 @@ def group_accuracy(model, gen):
     for label in [0,1]:
         for place in [0,1]:
             grp[label][place] = grp[label][place].sum() / grp[label][place].shape[0]
-
     return grp
 
 if __name__ == '__main__':

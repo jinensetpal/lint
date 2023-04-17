@@ -115,35 +115,35 @@ if __name__ == '__main__':
     val.__getitem__(0)
     test.__getitem__(0)
 
-    # name = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
-    # model = load_model(os.path.join(const.BASE_DIR, *const.SAVED_MODEL_PATH, name),
-    #                    custom_objects={'CAMLoss': CAMLoss},
-    #                    compile=False)
+    name = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
+    model = load_model(os.path.join(const.BASE_DIR, *const.SAVED_MODEL_PATH, name),
+                       custom_objects={'CAMLoss': CAMLoss},
+                       compile=False)
 
-    # fig = plt.figure(figsize=(14, 14),
-    #                  facecolor='white')
+    fig = plt.figure(figsize=(14, 14),
+                     facecolor='white')
 
-    # Path(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, name)).mkdir(parents=True, exist_ok=True)
-    # for idx, (X, y) in enumerate(zip(*test.__iter__().next())):
-    #     X = X.numpy()
-    #     if idx == 16: break
+    Path(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, name)).mkdir(parents=True, exist_ok=True)
+    for idx, (X, y) in enumerate(zip(*test.__getitem__(0))):
+        X = X.numpy()
+        if idx == 16: break
 
-    #     img = resize(X, dsize=const.IMAGE_SIZE, interpolation=INTER_CUBIC)
-    #     out, pred = get_class_activation_map(model, img)
-    #     img = resize(X, dsize=const.IMAGE_SIZE, interpolation=INTER_CUBIC)
-    #     img = Image.fromarray(img.astype('uint8'), 'RGB')
+        img = resize(X, dsize=const.IMAGE_SIZE, interpolation=INTER_CUBIC)
+        out, pred = get_class_activation_map(model, img)
+        img = resize(X, dsize=const.IMAGE_SIZE, interpolation=INTER_CUBIC)
+        img = Image.fromarray(img.astype('uint8'), 'RGB')
 
-    #     plt.figure(1)
-    #     fig.add_subplot(4, 4, idx + 1)
-    #     plt.imshow(img, alpha=0.5)
-    #     plt.imshow(out, cmap='jet', alpha=0.5)
+        plt.figure(1)
+        fig.add_subplot(4, 4, idx + 1)
+        plt.imshow(img, alpha=0.5)
+        plt.imshow(out, cmap='jet', alpha=0.5)
 
-    #     plt.figure(2)
-    #     plt.imshow(img, alpha=0.5)
-    #     plt.imshow(out, cmap='jet', alpha=0.5)
-    #     plt.savefig(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, name, f'{idx}.png'))
-    #     plt.clf()
-    # plt.tight_layout()
+        plt.figure(2)
+        plt.imshow(img, alpha=0.5)
+        plt.imshow(out, cmap='jet', alpha=0.5)
+        plt.savefig(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, name, f'{idx}.png'))
+        plt.clf()
+    plt.tight_layout()
 
-    # Path(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR)).mkdir(parents=True, exist_ok=True)
-    # fig.savefig(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, f'{name}.png'))
+    Path(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR)).mkdir(parents=True, exist_ok=True)
+    fig.savefig(os.path.join(const.BASE_DIR, *const.CAMS_SAVE_DIR, f'{name}.png'))
