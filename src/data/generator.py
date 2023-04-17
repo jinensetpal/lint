@@ -15,9 +15,9 @@ import os
 class DataGenerator(tf.keras.utils.Sequence):
     'Generates data for Keras'
     def __init__(self, df, batch_size=32, dim=(224, 224), n_channels=1,
-                 state = 'training', shuffle=True, split='train', seed=0):
+                 state='training', shuffle=True, split='train', seed=0):
         'Initialization'
-        if type(df) == PosixPath: df = pd.read_csv(df) 
+        if type(df) == PosixPath: df = pd.read_csv(df)
         self.df = df
         self.dim = dim
         self.batch_size = batch_size
@@ -49,18 +49,18 @@ class DataGenerator(tf.keras.utils.Sequence):
         'Updates indexes after each epoch'
         for split in range(3):
             self.indexes[const.ENCODINGS['split'][split]] = np.array(self.df[self.df['split'] == split]['img_id']) - 1
-        self.indexes['all'] = np.arange(self.df.shape[0]) 
+        self.indexes['all'] = np.arange(self.df.shape[0])
 
-        if self.shuffle: 
+        if self.shuffle:
             for split in self.indexes: np.random.shuffle(self.indexes[split])
 
     def __data_generation(self, IDs):
-        'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
+        'Generates data containing batch_size samples'  # X : (n_samples, *dim, n_channels)
         # Initialization
         X = np.empty((self.batch_size, *self.dim, self.n_channels))
         y = np.empty((self.batch_size), dtype=np.float32)
         p = np.empty((self.batch_size), dtype=np.float32)
-        
+
         # Generate data
         for idx, id in enumerate(IDs):
             X[idx] = Image.open(os.path.join(const.BASE_DIR, *const.DATA_PATH, id['img_filename'])).resize(const.IMAGE_SIZE)
@@ -73,7 +73,7 @@ class DataGenerator(tf.keras.utils.Sequence):
 
 
 def get_dataset(state='training'):
-    return [DataGenerator(Path(os.path.join(const.BASE_DIR, *const.DATA_PATH, 'metadata.csv')), 
+    return [DataGenerator(Path(os.path.join(const.BASE_DIR, *const.DATA_PATH, 'metadata.csv')),
                           const.BATCH_SIZE, const.IMAGE_SIZE, const.N_CHANNELS, shuffle=const.SHUFFLE,
                           state=state, split=split) for split in const.ENCODINGS['split']]
 
@@ -107,7 +107,6 @@ if __name__ == '__main__':
     from cv2 import resize, INTER_CUBIC
     from ..model.loss import CAMLoss
     import matplotlib.pyplot as plt
-    from PIL import Image
     import sys
 
     train, val, test = get_dataset()
