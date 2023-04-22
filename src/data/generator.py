@@ -12,9 +12,10 @@ import random
 import os
 
 
+# Forked from: https://stanford.edu/~shervine/blog/keras-how-to-generate-data-on-the-fly
 class DataGenerator(tf.keras.utils.Sequence):
     'Generates data for Keras'
-    def __init__(self, df, batch_size=32, dim=(224, 224), n_channels=1,
+    def __init__(self, df, batch_size=32, dim=(224, 224), n_channels=1, stratified=False,
                  state='training', shuffle=True, split='train', seed=0):
         'Initialization'
         if type(df) == PosixPath: df = pd.read_csv(df)
@@ -26,33 +27,52 @@ class DataGenerator(tf.keras.utils.Sequence):
         self.state = state
         if split not in const.ENCODINGS['split']: split = 'all'
         self.split = split
+        if stratified:
+            self.ratio = list(df[df['split'] == const.ENCODINGS['split'].index(self.split)].y.value_counts())
+            self.ratio = list(map(lambda x: x/sum(self.ratio), self.ratio))
+        else: self.ratio = None
         self.indexes = {}
         self.on_epoch_end()
         random.seed(seed)
+        np.random.seed(seed)
         self.gen = ImageDataGenerator()
 
     def __len__(self):
         'Denotes the number of batches per epoch'
+        if self.ratio: return int(list(self.indexes[self.split].values())[0].shape[0] / self.batch_size / self.ratio[0])
         return int(self.indexes[self.split].shape[0] / self.batch_size)
 
     def __getitem__(self, index):
         'Generate one batch of data'
         # Generate indexes of the batch
-        indexes = self.indexes[self.split][index*self.batch_size:(index+1)*self.batch_size]
-        np.random.shuffle(indexes)
-
+        if not self.ratio:
+            indexes = self.indexes[self.split][index*self.batch_size:(index+1)*self.batch_size]
+        else:
+            indexes = np.array([])
+            for place, idxs in self.indexes[self.split].items():
+                np.hstack([indexes, idxs[round(index*self.batch_size*self.ratio[place]):round((index+1)*self.batch_size*self.ratio[place])]])
+            np.random.shuffle(indexes)
         ids = [self.df.iloc[index] for index in indexes]
 
         return self.__data_generation(ids)
 
     def on_epoch_end(self):
         'Updates indexes after each epoch'
-        for split in range(3):
-            self.indexes[const.ENCODINGS['split'][split]] = np.array(self.df[self.df['split'] == split]['img_id']) - 1
+        if self.ratio:
+            for split in range(3):
+                self.indexes[const.ENCODINGS['split'][split]] = {grp: np.array(df['img_id']) - 1 for (grp, df) in self.df[self.df['split'] == split][['img_id', 'y']].groupby('y')}
+                for k, v in self.indexes[const.ENCODINGS['split'][split]].items():
+                    print(k, v.shape, split, self.state)
+        else:
+            for split in range(3):
+                self.indexes[const.ENCODINGS['split'][split]] = np.array(self.df[self.df['split'] == split]['img_id']) - 1
         self.indexes['all'] = np.arange(self.df.shape[0])
 
         if self.shuffle:
-            for split in self.indexes: np.random.shuffle(self.indexes[split])
+            for split in self.indexes:
+                if split == 'all' or not self.ratio: np.random.shuffle(self.indexes[split])
+                else:
+                    for label in self.indexes[split]: np.random.shuffle(self.indexes[split][label])
 
     def __data_generation(self, IDs):
         'Generates data containing batch_size samples'  # X : (n_samples, *dim, n_channels)
@@ -113,6 +133,8 @@ if __name__ == '__main__':
     train.__getitem__(0)
     val.__getitem__(0)
     test.__getitem__(0)
+
+    print([sum((train.__getitem__(i)[1] == 0).numpy()) for i in range(train.__len__())])
 
     name = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
     model = load_model(os.path.join(const.BASE_DIR, *const.SAVED_MODEL_PATH, name),

@@ -24,8 +24,10 @@ def group_accuracy(model, gen):
                 grp[label][place] = np.hstack([grp[label][place], acc[np.logical_and(y == label, p == place)].numpy()])
 
     for label in [0, 1]:
+        grp[const.ENCODINGS['label'][label]] = {}
         for place in [0, 1]:
-            grp[label][place] = grp[label][place].sum() / grp[label][place].shape[0]
+            grp[const.ENCODINGS['label'][label]][const.ENCODINGS['place'][place]] = grp[label][place].sum() / grp[label][place].shape[0]
+        del grp[label]
     return grp
 
 

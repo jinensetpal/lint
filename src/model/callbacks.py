@@ -11,11 +11,13 @@ def get_callbacks(threshold, loss_weights, parameter='val_loss'):
         return lr * 1E-1
 
     es = tf.keras.callbacks.EarlyStopping(monitor=f'val_{const.PENULTIMATE_LAYER}_loss',
-                                          patience=8,
+                                          patience=15,
                                           restore_best_weights=True,
                                           start_from_epoch=10)
+    sch = tf.keras.callbacks.LearningRateScheduler(schedule)
+    lm = LossManager(const.LIMIT, loss_weights)
 
-    return [es,]
+    return [es, sch, lm]
 
 
 class LossManager(tf.keras.callbacks.Callback):

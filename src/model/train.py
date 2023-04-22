@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     optimizer = tf.keras.optimizers.SGD(learning_rate=const.LEARNING_RATE,
                                         momentum=const.MOMENTUM)
-    loss_weights = [K.variable(5E-1), K.variable(1E4)] if multiheaded else K.variable(1)
+    loss_weights = [K.variable(1E-1), K.variable(1E4)] if multiheaded else K.variable(1)
     losses = ['binary_crossentropy', CAMLoss(loss_weights)] if multiheaded else 'binary_crossentropy'
     model.compile(optimizer=optimizer,
                   loss=losses,

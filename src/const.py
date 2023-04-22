@@ -16,8 +16,8 @@ THRESHOLD = .97
 # training
 MODEL_NAME = 'default'
 LEARNING_RATE = 1E-4
-BATCH_SIZE = 24
-SHUFFLE = False
+BATCH_SIZE = 32
+SHUFFLE = True
 MOMENTUM = 0.9
 EPOCHS = 30
 LIMIT = round(EPOCHS * .7)  # the point after which the routine switches into fine-tuning
@@ -25,6 +25,7 @@ SEED = 1024
 
 # dataset
 ENCODINGS = {'place': ['land', 'water'],
+             'label': ['landbird', 'waterbird'],
              'split': ['train', 'valid', 'test']}
 IMAGE_SIZE = (224, 224)
 N_CHANNELS = 3
