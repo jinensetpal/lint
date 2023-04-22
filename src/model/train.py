@@ -20,9 +20,9 @@ if __name__ == '__main__':
     model = get_model(const.IMAGE_SIZE, const.N_CLASSES, name, const.N_CHANNELS, multiheaded=multiheaded)
     model.summary()
 
-    optimizer = tf.keras.optimizers.SGD(learning_rate=const.LEARNING_RATE,
+    optimizer = tf.keras.optimizers.SGD(learning_rate=const.LEARNING_RATE[0],
                                         momentum=const.MOMENTUM)
-    loss_weights = [K.variable(1E-1), K.variable(1E4)] if multiheaded else K.variable(1)
+    loss_weights = const.LOSS_WEIGHTS[0] if multiheaded else K.variable(1)
     losses = ['binary_crossentropy', CAMLoss(loss_weights)] if multiheaded else 'binary_crossentropy'
     model.compile(optimizer=optimizer,
                   loss=losses,

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from tensorflow.keras import backend as K
 from pathlib import Path
 
 # directories
@@ -15,12 +16,15 @@ THRESHOLD = .97
 
 # training
 MODEL_NAME = 'default'
-LEARNING_RATE = 1E-4
-BATCH_SIZE = 32
+BATCH_SIZE = 24
 SHUFFLE = True
 MOMENTUM = 0.9
 EPOCHS = 30
-LIMIT = round(EPOCHS * .7)  # the point after which the routine switches into fine-tuning
+LEARNING_RATE = [1E-3, 1E-4, 1E-6]
+LOSS_WEIGHTS = [[K.variable(7E-1), K.variable(1)],
+                [K.variable(8E-1), K.variable(5E2)],
+                [K.variable(1), K.variable(0)]]
+LIMIT = [round(EPOCHS * .2), round(EPOCHS * .8)]  # the point after which the routine switches bootstrap -> training -> fine-tuning
 SEED = 1024
 
 # dataset
