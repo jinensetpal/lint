@@ -12,19 +12,19 @@ SAVED_MODEL_PATH = ['models',]
 
 # CAMs
 PENULTIMATE_LAYER = 'conv5_block3_out'
-THRESHOLD = .97
 
 # training
 MODEL_NAME = 'default'
-BATCH_SIZE = 24
+BATCH_SIZE = 16
 SHUFFLE = True
 MOMENTUM = 0.9
-EPOCHS = 30
+EPOCHS = 3
+STRATIFIED = True
 LEARNING_RATE = [1E-3, 1E-4, 1E-6]
 LOSS_WEIGHTS = [[K.variable(7E-1), K.variable(1)],
                 [K.variable(8E-1), K.variable(5E2)],
                 [K.variable(1), K.variable(0)]]
-LIMIT = [round(EPOCHS * .2), round(EPOCHS * .8)]  # the point after which the routine switches bootstrap -> training -> fine-tuning
+LIMIT = [1, 2]  # [round(EPOCHS * .2), round(EPOCHS * .8)]  # the point after which the routine switches bootstrap -> training -> fine-tuning
 SEED = 1024
 
 # dataset

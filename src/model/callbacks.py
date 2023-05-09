@@ -5,7 +5,7 @@ import tensorflow as tf
 from .. import const
 
 
-def get_callbacks(threshold, loss_weights, parameter='val_loss'):
+def get_callbacks(threshold, parameter='val_loss'):
     def schedule(epoch, lr):
         if epoch != threshold: return lr
         return lr * 1E-1
@@ -15,19 +15,22 @@ def get_callbacks(threshold, loss_weights, parameter='val_loss'):
                                           restore_best_weights=True,
                                           start_from_epoch=10)
     sch = tf.keras.callbacks.LearningRateScheduler(schedule)
-    # lm = LossManager(const.LIMIT[0], loss_weights)
+    lm = LossManager(const.LIMIT, const.LOSS_WEIGHTS)
 
     return [es, sch]
 
 
 class LossManager(tf.keras.callbacks.Callback):
     def __init__(self, limit, weights):
-        self.limit = limit
-        self.weights = weights
-        self.mapping = [K.variable(1), K.variable(0)]
+        self.limit_iter = iter(limit)
+        self.target_iter = iter(weights)
+
+        self.targets = next(self.target_iter)
+        self.limit = next(self.limit_iter)
 
     def on_epoch_begin(self, epoch, logs=None):
         if epoch in [self.limit, self.limit // 2] and type(self.weights) == list:
-            self.mapping = self.mapping[::-1]
-            for weight, target in zip(self.weights, self.mapping):
-                K.set_value(weight, target)
+            for weight, target in zip(self.weights, self.targets): K.set_value(weight, target)
+
+            self.limit = next(self.limit_iter)
+            self.targets = next(self.target_iter)

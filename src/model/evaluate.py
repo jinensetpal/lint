@@ -38,4 +38,4 @@ if __name__ == '__main__':
                        custom_objects={'CAMLoss': CAMLoss},
                        compile=False)
 
-    for gen in get_dataset(state='evaluation'): print(gen.split, group_accuracy(model, gen))
+    for gen in get_dataset(state='evaluation', stratified=False): print(gen.split, group_accuracy(model, gen))

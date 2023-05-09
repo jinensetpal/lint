@@ -27,7 +27,9 @@ class DataGenerator(tf.keras.utils.Sequence):
         self.state = state
         if split not in const.ENCODINGS['split']: split = 'all'
         self.split = split
-        if stratified:
+        if type(stratified) == list:
+            self.ratio = stratified
+        elif stratified:
             self.ratio = list(df[df['split'] == const.ENCODINGS['split'].index(self.split)].y.value_counts())
             self.ratio = list(map(lambda x: x/sum(self.ratio), self.ratio))
         else: self.ratio = None
@@ -61,8 +63,6 @@ class DataGenerator(tf.keras.utils.Sequence):
         if self.ratio:
             for split in range(3):
                 self.indexes[const.ENCODINGS['split'][split]] = {grp: np.array(df['img_id']) - 1 for (grp, df) in self.df[self.df['split'] == split][['img_id', 'y']].groupby('y')}
-                for k, v in self.indexes[const.ENCODINGS['split'][split]].items():
-                    print(k, v.shape, split, self.state)
         else:
             for split in range(3):
                 self.indexes[const.ENCODINGS['split'][split]] = np.array(self.df[self.df['split'] == split]['img_id']) - 1
@@ -79,7 +79,7 @@ class DataGenerator(tf.keras.utils.Sequence):
         # Initialization
         X = np.empty((self.batch_size, *self.dim, self.n_channels))
         y = np.empty((self.batch_size), dtype=np.float32)
-        p = np.empty((self.batch_size), dtype=np.float32)
+        p = np.empty((self.batch_size), dtype=np.int8)
 
         # Generate data
         for idx, id in enumerate(IDs):
@@ -92,10 +92,10 @@ class DataGenerator(tf.keras.utils.Sequence):
         return X, y
 
 
-def get_dataset(state='training'):
+def get_dataset(state='training', stratified=const.STRATIFIED):
     return [DataGenerator(Path(os.path.join(const.BASE_DIR, *const.DATA_PATH, 'metadata.csv')),
                           const.BATCH_SIZE, const.IMAGE_SIZE, const.N_CHANNELS, shuffle=const.SHUFFLE,
-                          state=state, split=split) for split in const.ENCODINGS['split']]
+                          stratified=stratified, state=state, split=split) for split in const.ENCODINGS['split']]
 
 
 def get_class_activation_map(model, img):

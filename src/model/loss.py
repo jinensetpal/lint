@@ -5,14 +5,16 @@ from tensorflow.keras.losses import Loss
 from ..data.generator import extrapolate
 import tensorflow as tf
 from .. import const
+import numpy as np
 
 
 class CAMLoss(Loss):
     def __init__(self, _):
         super().__init__()
         self.weights = None
-        self.kernel = tf.convert_to_tensor(Gaussian2DKernel(const.IMAGE_SIZE[0] * .3, x_size=const.IMAGE_SIZE[0], y_size=const.IMAGE_SIZE[1]), dtype=tf.float32)
-        self.kernel -= 1E2 * tf.reduce_max(self.kernel)
+        self.kernel = np.array(Gaussian2DKernel(const.IMAGE_SIZE[0] * .25, x_size=const.IMAGE_SIZE[0], y_size=const.IMAGE_SIZE[1]))
+        self.kernel -= self.kernel.max()
+        self.kernel = tf.convert_to_tensor(np.absolute(self.kernel), dtype=tf.float32)
 
     def call(self, labels, conv_outputs):
         def compute_loss(conv_output):
@@ -26,4 +28,5 @@ if __name__ == '__main__':
 
     loss = CAMLoss(const.LOSS_WEIGHTS[0])
     plt.imshow(loss.kernel)
+    plt.colorbar()
     plt.show()
