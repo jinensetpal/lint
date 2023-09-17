@@ -1,0 +1,192 @@
+
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2024_conference,times}
+
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+\input{math_commands.tex}
+
+\usepackage{chngpage}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{url}
+
+
+\title{Interpretable Risk Minimization}
+
+% Authors must not appear in the submitted version. They should be hidden
+% as long as the \iclrfinalcopy macro remains commented out below.
+% Non-anonymous submissions will be rejected without review.
+
+\author{Jinen Setpal (PUID 0033541028) \\
+Department of Computer Science \\
+Purdue University \\
+West Lafeyette, IN 47906, USA \\
+\texttt{jsetpal@cs.purdue.edu}
+}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+% \iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\label{intro}
+
+A few critical assumptions are often made by machine learning researchers and practitioners training neural networks. Specifically; an optimal neural network is robust to an unseen sample on the following primary assumptions: a) the chosen architecture is expressive enough to generalize to the data, and b) their dataset is a representative sample of the global distribution. We focus our discussion on this second assumption.
+
+In most cases, especially in restricted or niche domains -- it is incredibly rare to find and even harder to verify a truly representative dataset. Additionally, neural networks are fundamentally associative in nature. That, alongside the overparameterized nature of models with regularizers that promote using fewer parameters often results in model posteriors that either overfit to data or learn correlations within the dataset \citep{kanal1964recognition}.
+
+Researchers today are generally aware of this. To ensure that models do not fit to spurious correlations, a significant body of research explores techniques for \textit{machine interpretability} -- the degree to which a human can understand the cause of a decision \citep{molnar2020interpretable}.
+
+Broadly, interpretability within machine learning is classified into two distinct types: post-hoc interpretability \citep{madsen2022post} and intrinsic interepretability \citep{pintelas2020grey, sarkar2022framework, reddy2022causally}. Post-hoc techniques for machine interpretability include approaches that are used as ``sanity checks''; to ensure accurate convergence at the end of training, whereas intrinsic interpretability techniques include approaches that are used as part of the training regime, to guide model convergence.
+
+The ideal objective is to ensure that the model backbone, $\Gamma(x; {\bf W_\Gamma})$, learns an environment-invariant representation of the target, ensuring that the downstream MLP can perform the task without interference from correlating factors. For this work, we limit the scope of the overall objective to maximizing the worst-group performance. Group-split performance of the dataset refers to the accuracy of the model split by the specific environment in which the target is present. We discuss this in further detail under Section \ref{dataset}. Ensuring equal group-split performance within datasets is also a proposed definition of fairness. Therefore, an additional loosely defined-objective would be ensuring fairer representations of the dataset targets.
+
+This work establishes a proof-of-concept that is able to leverage post-hoc interpretability techniques as part of the training process. By mathematically formalizing inductive loss functions that exploit implicit shared knowledge within the dataset, we aim to update the search space of the model to that of a convex optimization problem; following which backpropagration using elementary optimizers such as Stochastic Gradient Descent \citep{amari1993backpropagation} are able to obtain the global cost minima, establishing an interpretable basis for training neural networks.
+
+\section{Dataset}
+\label{dataset}
+
+For this task, we use leverage the \textbf{Waterbirds} \citep{sagawa2019distributionally} dataset to test the proposed approach. The dataset contains two classes: landbirds and waterbirds. This is a binary classification task. Crucially, these landbirds and waterbirds are placed in two distinct environments. There are, therefore four different ``types'' of images: \textbf{landbirds on land}, \textbf{landbirds on water}, \textbf{waterbirds on land}, and \textbf{waterbirds on water}. These groups are present in equal proportions during testing. During training, there is a group imbalance; with most samples of landbirds being on land, and most samples of waterbirds being on water, introducing out-of-distribution testing.
+
+Part of the research objective is to perform an ablation study using the proposed interpretable training techniques against the empirical risk minimization methods presented in \citep{liu2021just}, which is another reason for using the \textbf{Waterbirds} dataset.
+
+The proposed approach has also been tested on a manually modified version of the \textbf{CALTECH-256} \citep{griffin2007caltech} dataset. It must be noted that this was mostly to test the concept, and while it worked well to simulate the target situation, it is not a reliable benchmark. The \textbf{Waterbirds} dataset is a known benchmark for out-of-distribution generalization, and solves this.
+
+\section{Methodology}
+
+We establish the approach as a bi-leveled optimization problem. Similar to \citep{arjovsky2019invariant}, $ D_E := \{(x^e_i, y^e_i)\}_{i=1}^{n_e} $ is the dataset consisting $E := \{e_i\}^{n_e}_{i=1}$ differing environments. Given $D_W$ s.t. $W \subset E$, our objective is to effectively predict $y_i^e \in D_U$ given $x_i^e$, where $U = E - W$.
+\begin{align*}
+	\text{Let } & \mathcal{X} \in \mathbb{R}^{n \times n \times c},\ \mathcal{H} \in \mathbb{R}^{l \times m}, \mathcal{Y} \subset \mathbb{R} \\
+		    & \Phi : \mathcal{X} \rightarrow \mathcal{H} \rightarrow \mathcal{Y}
+\end{align*}
+
+Where $\Phi(\mathcal{X})$ is a multiheaded classifier outputting the hidden representation in addition to the classification. $\mathcal{X}$ is the input representation, $\mathcal{H}$ is an arbitrary latent representation and $\mathcal{Y}$ is the classification output. Our objective is to optimize $\Phi(x_i^e) := \{f(\Gamma(x;{\bf W_\Gamma});{\bf{W_f}})^e, h_i^e\} \approx \{y_i^e, \mu\}; \mu \in \mathbb{R}^\mathbb{N}$ using dataset specific cost functions defined within Section \ref{cam}.
+
+\subsection{Architecture}
+
+\begin{figure}[t]
+	\includegraphics[width=\textwidth]{figs/architecture}
+	\caption{Model architecture with highlighted backward and forward passes.}
+	\label{arch}
+\end{figure}
+
+The objective of the approach was to directly compare against similar approaches to risk minimization. While any architecture can be utilized for the approach provided that a class activation mapping is obtainable, we chose to use the architecture utilized by \citep{liu2021just} for an ideal ablation study. We fine-tune the ResNet-50 backbone pre-trained on ImageNet, with a single MLP layer with softmax activation resulting in the final prediction. The architecture is as shown in Figure \ref{arch}.
+
+The model output is multiheaded, with the actual classification along with the class activation map as output. Each head has it's own loss, a linear combination of which returns the net resultant loss. Particulars regarding hyperparameters are discussed in Section \ref{hyperparams}.
+
+\subsubsection{Training Details}
+\label{hyperparams}
+
+\paragraph{Learning Scheduler.} The learning rates as well as loss weights are updated by the learning scheduler, split into three phases: a) bootstrapping, b) training, and c) fine-tuning. The transitions occur at $20\%$ and $80\%$ of the total epochs on which the model was trained. Since the model was trained on 30 epochs, these transitions occurred at epochs $6$ and $24$ respectively. The learning rate (LR) and loss weight (LW) splits are as follows:
+\begin{itemize}
+	\item[Epochs 1-5:] LR: $10^{-3}$, LW: \{BCE: $7 \times 10^{-1}$, CAM: $1$\}
+	\item[Epochs 6-23:] LR: $10^{-4}$, LW: \{BCE: $8 \times 10^{-1}$, CAM: $5 \times 10^2$\}
+	\item[Epochs 24-30:] LR: $10^{-6}$, LW: \{BCE: $1$, CAM: $0$\} 
+\end{itemize}
+
+\paragraph{Optimizer.} We use Stochastic Gradient Descent with momentum $\theta = 0.9$, with learning rate is updated based on the scheduler defined above.
+
+\paragraph{DataGenerator.} The waterbirds dataset contains a minor label shift between splits, with $\text{landbird}:\text{waterbird} :: \{3.3081, 3.5075, 3.5125\}:1$, for training, validation and testing respectively. This split was not accounted for during the data generation process. However, sample stratification by class ratios for the training split was enforced, with random sampling applied for validation and testing sets.
+
+\paragraph{Batch Size.} We used a batch size of 24, due to the memory restrictions imposed by the available compute. Most other approaches \citep{liu2021just} trained their models using a batch size of 64.
+
+\subsection{Class Activation Mappings}
+\label{cam}
+
+Class Activation Mappings (CAMs) \citep{zhou2016learning} is a method of target localization. By obtaining the projection of weights from the final convolutional layer onto the penultimate dense layer (under the assumption that the number of convolutional filters equals the number of dense neurons), and superimposing it over the original image, we are able to obtain a heatmap of the region used for classification.
+
+We leverage this by utilizing the implicit knowledge within our provided dataset. As an example, both the \textbf{Waterbirds} and \textbf{CALTECH-256} datasets have centred every target within their images. We evaluate the mean-squared sum of an inverted 2D Gaussian projected against the Class Activation Mapping producing the additional, self-supervised loss function. Formally, we minimize the following objective function:
+
+\begin{align*}
+	L(\Phi(x_i^e), y_i^e) &= L_{BCE}(f(\Gamma(x;{\bf W_\Gamma});{\bf W_f})_i^e, y_i^e) + L_{CAM}(h_i^e) \\
+	L(\Phi(x_i^e), y_i^e) &= \frac{1}{N}\sum^N_{i=0}\sum^1_{j=0}y_i^e\log(f(\Gamma(x;{\bf W_\Gamma});{{\bf W_f}})_i^e) ) + \sum^N_{i=0}\sum^l_{j=0}\sum^m_{k=0} [(1 - e^{-j^2 - k^2}) \cdot \sigma_{\text{relu}}(h_i^{j,k})]^2
+\end{align*}
+
+A visualization of the obtained activation map for a sample spuriously correlating the background, along with the mask against which it is weakly supervised is as follows:
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=.4\textwidth]{figs/cams.png}
+	\includegraphics[width=.4\textwidth]{figs/mask.png}
+\end{figure}
+
+In this case, although the classification is accurate, the sample produces a high loss due to the fact that the background is used for basing the classification, and not the target itself. This establishes a curriculum-style approach to model optimizitation wherein intermediary layers are checkpointed and backpropagated against. To ensure that our network is unable to overfit to the gaussian projection, we combine this with transformation and translation equivariant convolutional representations, following \citep{mouli2021neural}.
+
+\section{Related Work}
+
+\cite{arjovsky2019invariant} presents a causal approach towards out-of-distribution generalization. The paper discusses identifying environment-invariant predictors by deriving a penalty based on the structural causal model defined in their paper.
+
+\cite{liu2021just} uses empirical methods to achieve the same objective. The authors train an identification model that associates sample with high training losses. These are then upweighted, enabling generalization across domains. However, the primary limitation of this work is that it requires the existence of a small set of samples within a dataset. These edge cases are then highlighted. While it allows for better generalization within the sampled distribution, it does not account for samples outside the training distribution.
+
+\cite{krueger2021out} presents a form of robust optimization over a perturbation set of extrapolated domains in addition to a simpler penalty on the variance of training risks. It is able to recover the causal mechanisms of the targets and is also resilient to covariate shift.
+
+% add DRO
+
+\section{Results}
+
+As stated within Section \ref{intro}, the objective of the model was to learn a latent representation invariant to the background of the model. Since Class Activation Mappings are fundamentally a post-hoc tool, we can use them to compare the regions used for image identification. The following figure displays the class activation mappings for training run with standard ERM, and the updated CAM-based approach:
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=.468\textwidth]{figs/default}
+	\ \ \ \ \ \ 
+	\includegraphics[width=.468\textwidth]{figs/camloss}
+	\caption{(a) CAMs of evaluations trained using ERM; (b) CAMs of evaluations trained using Interpret-RM.}
+\end{figure}
+
+We observe samples in the ERM-based approach where the model places a high weightage on the background of the image, implying that shortcut learning is employed to learn the data distribution. When the same model architecture is trained using Interpret-RM, we observe that this is mitigated, as there is a higher weightage placed on the actual targets within the image.
+
+One of the concerns during the development of the approach was that by centering the image, we could overfit the model to the inverse gaussian, and the model would only observe the center, regardless of the location of the actual target. Crucially, when we tested a model trained with the updated approach against an image translationally migrated to have the target at the edge of the image, the model was able to accurately identify the region where the target was present, and not the just focus on the center. 
+
+There are a couple of reasons for this. First, this approach was viable due to the inbuilt mechanism for translation equviariance within convolutional neural networks. Second, and likely more important, is that the \underline{loss is a reductionist value}. The optimization algorithm does not know \textit{why} it receives a high cost for a given inference. As long as the correlation between the metric for the interpretable loss devised by the practitioner is close enough that is can weakly identify when the model is performing optimally, cost function performs as though it is a background/foreground identifier, even the heuristic does not universally hold. The closest minima for the model is now updated to that of the target itself, and therefore the model focuses on the target regardless of it's location during inference. However, if we over-weight the devised mask, it will overfit to the central portion of the image and will not work optimally.
+
+We evaluate our approach against a series of state-of-the-art approaches to group minimization. Updating the table from \citep{kim2022sharpnessaware}, we report the following metrics on the \textbf{Waterbirds} dataset:
+
+\setlength\tabcolsep{3pt}
+\begin{table}[h]
+	\begin{adjustwidth}{-.5in}{-.5in}  
+	\begin{tabular}{c|ccc|cccc}
+		\toprule
+		\textbf{Method}  & \textbf{Average}  & \textbf{Group Average}   & \textbf{Worst Group}    & \textbf{LL}                         & \textbf{LW}                         & \textbf{WL}                         & \textbf{WW}               \\
+		\midrule
+		ERM              & 97.1              & 84.1                     & 69.8                    & 99.3 $\pm$ 0.1                      & 71.5 $\pm$ 0.5                      & 69.8 $\pm$ 0.6                      & 95.8 $\pm$ 0.2            \\
+		SAM              & \textbf{97.6}     & 87.2                     & 75.5                    & 99.4 $\pm$ 0.1             & 77.5 $\pm$ 1.8                      & 75.5 $\pm$ 1.0                      & \textbf{96.4} $\pm$ \textbf{0.3}   \\
+		GDRO             & 93.8              & 90.4                     & 86.5                    & 94.7 $\pm$ 0.7                      & 86.5 $\pm$ 0.7                      & 88.1 $\pm$ 0.3                      & 92.3 $\pm$ 0.3            \\
+		SGDRO            & 93.1              & \textbf{90.6}            & \textbf{87.2}           & 93.8 $\pm$ 1.7                      & \textbf{87.2} $\pm$ \textbf{0.5}    & \textbf{89.3} $\pm$ \textbf{0.3}    & 92.0 $\pm$ 0.8            \\
+		\midrule
+		\textbf{Interpret-RM (Ours)} & 86.3              & 80.6            & 48.8           & \textbf{99.6 $\pm$ 0.1}                      & 83.7 $\pm$ 0.1    & 48.8 $\pm$ 0.1    & 90.3 $\pm$ 0.8            \\
+		\bottomrule
+	\end{tabular}
+\end{adjustwidth}
+\end{table}
+
+We observe that our approach does not perform optimally to the target dataset. We address this in Section \ref{limitations}. 
+
+\subsection{Limitations}
+\label{limitations}
+
+Regarding benchmark performance, we attribute it primarily to the low batch size used to train the model. We also did not perform any hyperparameter tuning, and assume improvements as a consequence. Finally, we also did not experiment with the various designs of the interpretable loss function, and do not believe the current solution is optimal for the task.
+
+In addition, this approach fails to formally the objective function within the context of interpretability. One of the consequences for this is the naive design of the interpretable loss function. While it is able to converge towards solutions that do not use the background, it is not well balanced, and needs to often be manually tuned to ensure it is not over or under-powered.
+
+Finally, the greatest limitation within the approach is it's lack of generalizability. It requires the dataset to contain a certain shared characteristics, that represents an inductive bias that can be mathematically applied to the dataset. For future work, the objective is to introduce generalizable metrics based on statistically observed behaviors within accurate and inaccurate activation mappings, rather than the use of hardcoded, task and dataset-specific masks to achieve a similar result.
+
+\paragraph{Reproducibility.} The code, data, models, experiments and execution pipelines are hosted at \url{https://dagshub.com/jinensetpal/lint}. The pipeline is structured as a DAG, and can be replicated end-to-end with a single command.
+
+\bibliography{iclr2024_conference}
+\bibliographystyle{iclr2024_conference}
+
+\end{document}
