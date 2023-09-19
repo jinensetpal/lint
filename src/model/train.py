@@ -4,34 +4,55 @@ from ..dataset import get_generators
 from .loss import CAMLoss
 from .arch import Model
 from .. import const
+import mlflow
 import torch
 import sys
 
 
 def fit(model, optimizer, losses, train, val):
-    training_loss = []
-    validation_loss = []
-    interval = max(1, (const.EPOCHS // 10))
-    for epoch in range(const.EPOCHS):
-        if not (epoch+1) % interval: print('-' * 10)
-        training_loss.append([])
-        validation_loss.append([])
+    if const.LOG_REMOTE: mlflow.set_tracking_uri(const.MLFLOW_TRACKING_URI)
+    with mlflow.start_run():
+        # log hyperparameters
+        mlflow.log_params({k: v for k, v in const.__dict__.items() if k == k.upper() and all(s not in k for s in ['DIR', 'PATH'])})
+        mlflow.log_params({'loss_fn': 'Cross Entropy',
+                           'optimizer_fn': 'Stochastic Gradient Descent'})
 
-        for train_batch, val_batch in train, val:
-            optimizer.zero_grad()
+        interval = max(1, (const.EPOCHS // 10))
+        for epoch in range(const.EPOCHS):
+            if not (epoch+1) % interval: print('-' * 10)
+            training_loss = torch.empty(len(losses))
+            validation_loss = torch.empty(len(losses))
 
-            X, y = map(lambda x: x.to(const.DEVICE), train_batch)
-            y_pred = model(X)
+            for train_batch, valid_batch in zip(train, val):
+                optimizer.zero_grad()
 
-            batch_loss = list(map(lambda weight, loss, pred: weight * loss(pred, y), const.LOSS_WEIGHTS, losses, y_pred))
-            training_loss[-1].append(batch_loss)
-            batch_loss.backward()
+                X_train, y_train, X_valid, y_valid = map(lambda x: x.to(const.DEVICE), [*train_batch, *valid_batch])
+                y_pred_train = model(X_train)
 
-            optimizer.step()
+                with torch.no_grad():
+                    y_pred_valid = model(X_valid)
 
-        # validation loss
-        if not (epoch+1) % interval: print(f'Epoch: {epoch+1}\tLoss: {sum(training_loss[-1]) / len(train)}')
-    print('-' * 10)
+                train_batch_loss = list(map(lambda loss, pred: loss(pred, y_train), losses, y_pred_train))
+                training_loss = torch.vstack([training_loss, torch.tensor(train_batch_loss)])
+                validation_loss = torch.vstack([validation_loss, torch.tensor(list(map(lambda loss, pred: loss(pred, y_valid), losses, y_pred_valid)))])
+
+                sum(map(lambda weight, loss: weight * loss, const.LOSS_WEIGHTS, train_batch_loss)).backward()
+                optimizer.step()
+
+            training_loss = training_loss.mean(dim=0)
+            validation_loss = validation_loss.mean(dim=0)
+            metrics = {'epoch': epoch+1,
+                       'loss': training_loss.sum().item(),
+                       'crossentropy_loss': training_loss[0].item(),
+                       'cam_loss': training_loss[1].item(),
+                       'val_loss': validation_loss.sum().item(),
+                       'val_crossentropy_loss': validation_loss[0].item(),
+                       'val_cam_loss': validation_loss[1].item()}
+            mlflow.log_metrics(metrics, step=epoch)
+            if not (epoch+1) % interval:
+                for key in metrics: print(f'{key}: {metrics[key]}', end='\t')
+                print()
+        print('-' * 10)
 
 
 if __name__ == '__main__':

@@ -14,7 +14,7 @@ SAVE_MODEL_PATH = BASE_DIR / 'models'
 MODEL_NAME = 'default'
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 LEARNING_RATE = 1E-3
-BATCH_SIZE = 16
+BATCH_SIZE = 128
 MOMENTUM = 0.9
 EPOCHS = 50
 LOSS_WEIGHTS = torch.tensor([1, 7E-1])
@@ -30,4 +30,4 @@ IMAGE_SHAPE = (N_CHANNELS,) + IMAGE_SIZE
 
 # logging
 MLFLOW_TRACKING_URI = 'https://dagshub.com/jinensetpal/lint.mlflow'
-LOG = True
+LOG_REMOTE = True

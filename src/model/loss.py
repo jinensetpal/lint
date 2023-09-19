@@ -14,7 +14,7 @@ class CAMLoss(nn.Module):
         self.kernel -= self.kernel.max()
 
     def forward(self, y_pred, y):
-        return (y_pred[torch.argmax(y)] * self.kernel).mean()
+        return (y_pred[:, torch.argmax(y, dim=1)] * self.kernel).mean()
 
 
 if __name__ == '__main__':
