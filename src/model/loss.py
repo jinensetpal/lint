@@ -10,7 +10,7 @@ import torch
 class CAMLoss(nn.Module):
     def __init__(self, shape):
         super().__init__()
-        self.kernel = torch.tensor(np.array(Gaussian2DKernel(const.IMAGE_SIZE[0] * .25, x_size=shape[0], y_size=shape[1]))).to(const.DEVICE)
+        self.kernel = torch.tensor(np.array(Gaussian2DKernel(const.IMAGE_SIZE[0] * .01, x_size=shape[0], y_size=shape[1]))).to(const.DEVICE)
         self.kernel -= self.kernel.max()
 
     def forward(self, y_pred, y):
@@ -20,7 +20,7 @@ class CAMLoss(nn.Module):
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
-    loss = CAMLoss()
-    plt.imshow(loss.kernel)
+    loss = CAMLoss((7, 7))
+    plt.imshow(loss.kernel.detach().cpu())
     plt.colorbar()
     plt.show()

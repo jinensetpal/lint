@@ -11,7 +11,7 @@ CAMS_SAVE_DIR = DATA_DIR / 'cams'
 SAVE_MODEL_PATH = BASE_DIR / 'models'
 
 # training
-MODEL_NAME = 'default' 
+MODEL_NAME = 'default'
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 LEARNING_RATE = 1E-3
 BATCH_SIZE = 16

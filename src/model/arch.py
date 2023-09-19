@@ -5,6 +5,7 @@ from torch import nn
 import torchvision
 import torch
 
+
 class Model(torch.nn.Module):
     def __init__(self, input_shape):
         super().__init__()
@@ -21,7 +22,7 @@ class Model(torch.nn.Module):
         x = self.backbone(x)
         x = self.linear(x)
         x = self.softmax(x)
-        
+
         return x, self._compute_cam(torch.argmax(x, dim=1))
 
     def _backbone_out_shape(self, input_shape):
@@ -37,6 +38,7 @@ class Model(torch.nn.Module):
             return torch.vmap(lambda x: torch.tensordot(x, penultimate, dims=1), in_dims=0)(class_weights)
 
         return torch.vmap(single_cam, in_dims=0)(self.penultimate)
+
 
 if __name__ == '__main__':
     model = Model(input_shape=const.IMAGE_SHAPE).to(const.DEVICE)

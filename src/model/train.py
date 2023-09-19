@@ -7,6 +7,7 @@ from .. import const
 import torch
 import sys
 
+
 def fit(model, optimizer, losses, train, val):
     training_loss = []
     validation_loss = []
@@ -45,5 +46,3 @@ if __name__ == '__main__':
     losses = [torch.nn.CrossEntropyLoss(), CAMLoss(model.penultimate.shape[-2:])]
     fit(model, optimizer, losses, train, val)
     torch.save(model.state_dict(), const.SAVE_MODEL_PATH / f'{name}.pt')
-
-    embed()
