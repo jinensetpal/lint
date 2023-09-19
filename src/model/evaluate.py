@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-from tensorflow.keras.models import load_model
-from ..data.generator import get_dataset
+from ..data.generator import get_generators
 from ..model.loss import CAMLoss
-import tensorflow as tf
+from ..model.arch import Model
 from .. import const
 import numpy as np
+import torch
 import sys
 import os
 
@@ -34,8 +34,8 @@ def group_accuracy(model, gen):
 if __name__ == '__main__':
     name = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
 
-    model = load_model(os.path.join(const.BASE_DIR, *const.SAVED_MODEL_PATH, name),
-                       custom_objects={'CAMLoss': CAMLoss},
-                       compile=False)
+    model = Model(input_shape=const.IMAGE_SHAPE).to(const.DEVICE)
+    model.load_state_dict(const.MODEL_SAVE_DIR / f'{name}.pt')
+    model.eval()
 
-    for gen in get_dataset(state='evaluation', stratified=False): print(gen.split, group_accuracy(model, gen))
+    for gen in get_generators(state='evaluation'): print(gen.split, group_accuracy(model, gen))

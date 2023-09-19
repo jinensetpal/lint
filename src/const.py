@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-# from tensorflow.keras import backend as K
 from pathlib import Path
+import torch
 
 # directories
 BASE_DIR = Path(__file__).parent.parent
@@ -10,17 +10,13 @@ SAMPLE_SAVE_DIR = DATA_DIR / 'samples'
 CAMS_SAVE_DIR = DATA_DIR / 'cams'
 SAVED_MODEL_PATH = BASE_DIR / 'models'
 
-# hyperparameters
-SHOW_CAMS = True
+# training
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+LEARNING_RATE = 1E-3
 BATCH_SIZE = 16
 MOMENTUM = 0.9
 EPOCHS = 3
-LEARNING_RATE = [1E-3, 1E-4, 1E-6]
-# LOSS_WEIGHTS = [[K.variable(7E-1), K.variable(1)],
-#                 [K.variable(8E-1), K.variable(5E2)],
-#                 [K.variable(1), K.variable(0)]]
-LIMIT = [1, 2]  # [round(EPOCHS * .2), round(EPOCHS * .8)]  # the point after which the routine switches bootstrap -> training -> fine-tuning
-SEED = 1024
+LOSS_WEIGHTS = torch.tensor([1, 7E-1])
 
 # dataset
 ENCODINGS = {'place': ['land', 'water'],

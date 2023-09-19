@@ -19,9 +19,10 @@ class Dataset(torch.utils.data.Dataset):
         return len(self.df)
 
     def __getitem__(self, idx):
-        X = torchvision.io.read_image((const.DATA_DIR / self.df['img_filename'].iloc[idx]).as_posix())
+        X = torchvision.transforms.functional.resize(torchvision.io.read_image((const.DATA_DIR / self.df['img_filename'].iloc[idx]).as_posix()), const.IMAGE_SIZE, antialias=True)
         X = X / X.max() # normalization
-        y = torch.tensor(self.df['y'][idx]).type(torch.float32)
+        y = torch.zeros((const.N_CLASSES))
+        y[self.df['y'][idx]] = 1
 
         if self.state == 'evaluation': return X, y, torch.tensor(self.df['place'][idx])
         return X, y
