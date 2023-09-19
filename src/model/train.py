@@ -41,17 +41,15 @@ def fit(model, optimizer, losses, train, val):
 
             training_loss = training_loss.mean(dim=0)
             validation_loss = validation_loss.mean(dim=0)
-            metrics = {'epoch': epoch+1,
-                       'loss': training_loss.sum().item(),
-                       'crossentropy_loss': training_loss[0].item(),
+            metrics = {'combined_loss': training_loss.sum().item(),
+                       'cse_loss': training_loss[0].item(),
                        'cam_loss': training_loss[1].item(),
                        'val_loss': validation_loss.sum().item(),
-                       'val_crossentropy_loss': validation_loss[0].item(),
+                       'val_cse_loss': validation_loss[0].item(),
                        'val_cam_loss': validation_loss[1].item()}
             mlflow.log_metrics(metrics, step=epoch)
             if not (epoch+1) % interval:
-                for key in metrics: print(f'{key}: {metrics[key]}', end='\t')
-                print()
+                for key in metrics: print(f'{key}\t: {metrics[key]}')
         print('-' * 10)
 
 
