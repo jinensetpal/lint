@@ -10,8 +10,12 @@ class Dataset(torch.utils.data.Dataset):
     def __init__(self, df, split=None, state='training'):
         if type(df) == PosixPath: df = pd.read_csv(df)
 
-        if split: self.df = df[df['split'] == const.ENCODINGS['split'].index(split)].reset_index()
-        else: self.df = df
+        if split: 
+            self.df = df[df['split'] == const.ENCODINGS['split'].index(split)].reset_index()
+            self.split = split
+        else: 
+            self.df = df
+            self.split='all'
 
         self.state = state
 
@@ -29,7 +33,7 @@ class Dataset(torch.utils.data.Dataset):
 
 def get_generators(state='training'):
     return [torch.utils.data.DataLoader(Dataset(const.DATA_DIR / 'metadata.csv', split=split, state=state),
-                                        const.BATCH_SIZE, shuffle=True) for split in const.ENCODINGS['split']]
+                                        batch_size=const.BATCH_SIZE, shuffle=True) for split in const.ENCODINGS['split']]
 
 if __name__ == '__main__':
     print(Dataset(const.DATA_DIR / 'metadata.csv')[0])

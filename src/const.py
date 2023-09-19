@@ -8,14 +8,15 @@ BASE_DIR = Path(__file__).parent.parent
 DATA_DIR = BASE_DIR / 'data'
 SAMPLE_SAVE_DIR = DATA_DIR / 'samples'
 CAMS_SAVE_DIR = DATA_DIR / 'cams'
-SAVED_MODEL_PATH = BASE_DIR / 'models'
+SAVE_MODEL_PATH = BASE_DIR / 'models'
 
 # training
+MODEL_NAME = 'default' 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 LEARNING_RATE = 1E-3
 BATCH_SIZE = 16
 MOMENTUM = 0.9
-EPOCHS = 3
+EPOCHS = 50
 LOSS_WEIGHTS = torch.tensor([1, 7E-1])
 
 # dataset

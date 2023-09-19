@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from ..data.generator import get_generators
+from ..dataset import get_generators
 from ..model.loss import CAMLoss
 from ..model.arch import Model
 from .. import const
@@ -10,18 +10,19 @@ import sys
 import os
 
 
+from IPython import embed
+
 def group_accuracy(model, gen):
     grp = {}
     for (x, y, p) in gen:
-        pred = model(x)
-        if type(pred) == list: pred = pred[0]
-        acc = tf.experimental.numpy.ravel(tf.cast(pred > 0.5, tf.float32)) == y
+        pred = model(x.to(const.DEVICE))[0].argmax(dim=1)
+        y = y.argmax(dim=1)
 
         for label in [0, 1]:
             for place in [0, 1]:
                 if label not in grp: grp[label] = {}
                 if place not in grp[label]: grp[label][place] = np.empty(0)
-                grp[label][place] = np.hstack([grp[label][place], acc[np.logical_and(y == label, p == place)].numpy()])
+                grp[label][place] = np.hstack([grp[label][place], pred.detach().cpu()[np.logical_and(y == label, p == place)].numpy()])
 
     for label in [0, 1]:
         grp[const.ENCODINGS['label'][label]] = {}
@@ -35,7 +36,7 @@ if __name__ == '__main__':
     name = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
 
     model = Model(input_shape=const.IMAGE_SHAPE).to(const.DEVICE)
-    model.load_state_dict(const.MODEL_SAVE_DIR / f'{name}.pt')
+    model.load_state_dict(torch.load(const.SAVE_MODEL_PATH / f'{name}.pt'))
     model.eval()
 
-    for gen in get_generators(state='evaluation'): print(gen.split, group_accuracy(model, gen))
+    for gen in get_generators(state='evaluation'): print(gen.dataset.split, group_accuracy(model, gen))

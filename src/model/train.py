@@ -7,27 +7,29 @@ from .. import const
 import torch
 import sys
 
-def fit(model, optimizer, losses, data, val):
+def fit(model, optimizer, losses, train, val):
     training_loss = []
+    validation_loss = []
     interval = max(1, (const.EPOCHS // 10))
     for epoch in range(const.EPOCHS):
         if not (epoch+1) % interval: print('-' * 10)
         training_loss.append([])
+        validation_loss.append([])
 
-        for batch in data:
+        for train_batch, val_batch in train, val:
             optimizer.zero_grad()
 
-            X, y = map(lambda x: x.to(const.DEVICE), batch)
+            X, y = map(lambda x: x.to(const.DEVICE), train_batch)
             y_pred = model(X)
 
-            batch_loss = sum(map(lambda weight, loss, pred: weight * loss(pred, y), const.LOSS_WEIGHTS, losses, y_pred))
+            batch_loss = list(map(lambda weight, loss, pred: weight * loss(pred, y), const.LOSS_WEIGHTS, losses, y_pred))
+            training_loss[-1].append(batch_loss)
             batch_loss.backward()
 
             optimizer.step()
 
-            training_loss[-1].append(batch_loss)
         # validation loss
-        if not (epoch+1) % interval: print(f'Epoch: {epoch+1}\tLoss: {sum(training_loss[-1]) / const.BATCH_SIZE}')
+        if not (epoch+1) % interval: print(f'Epoch: {epoch+1}\tLoss: {sum(training_loss[-1]) / len(train)}')
     print('-' * 10)
 
 
