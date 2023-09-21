@@ -49,7 +49,8 @@ def fit(model, optimizer, losses, train, val):
                        'val_cam_loss': validation_loss[1].item()}
             mlflow.log_metrics(metrics, step=epoch)
             if not (epoch+1) % interval:
-                for key in metrics: print(f'{key}\t: {metrics[key]}')
+                print(f'epoch\t\t: {epoch+1}')
+                for key in metrics: print(f'{key}\t\t: {metrics[key]}')
         print('-' * 10)
 
 
