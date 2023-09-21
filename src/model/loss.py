@@ -1,32 +1,26 @@
 #!/usr/bin/env python3
 
 from astropy.convolution import Gaussian2DKernel
-from tensorflow.keras.losses import Loss
-from ..data.generator import extrapolate
-import tensorflow as tf
+import torch.nn as nn
 from .. import const
 import numpy as np
+import torch
 
 
-class CAMLoss(Loss):
-    def __init__(self, _):
+class CAMLoss(nn.Module):
+    def __init__(self, shape):
         super().__init__()
-        self.weights = None
-        self.kernel = np.array(Gaussian2DKernel(const.IMAGE_SIZE[0] * .25, x_size=const.IMAGE_SIZE[0], y_size=const.IMAGE_SIZE[1]))
+        self.kernel = torch.tensor(np.array(Gaussian2DKernel(const.IMAGE_SIZE[0] * .01, x_size=shape[0], y_size=shape[1]))).to(const.DEVICE)
         self.kernel -= self.kernel.max()
-        self.kernel = tf.convert_to_tensor(np.absolute(self.kernel), dtype=tf.float32)
 
-    def call(self, labels, conv_outputs):
-        def compute_loss(conv_output):
-            return tf.tensordot(extrapolate(conv_output, self.weights[:, 0], symbolic=True), self.kernel, 1)
-
-        return tf.reduce_mean(tf.map_fn(fn=compute_loss, elems=conv_outputs)) ** 2
+    def forward(self, y_pred, y):
+        return torch.square(y_pred[:, torch.argmax(y, dim=1)] * self.kernel).mean()
 
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
-    loss = CAMLoss(const.LOSS_WEIGHTS[0])
-    plt.imshow(loss.kernel)
+    loss = CAMLoss((7, 7))
+    plt.imshow(loss.kernel.detach().cpu())
     plt.colorbar()
     plt.show()

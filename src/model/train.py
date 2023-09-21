@@ -1,43 +1,68 @@
 #!/usr/bin/env python3
 
-from tensorflow.keras import backend as K
-from ..data.generator import get_dataset
-from .callbacks import get_callbacks
-from .arch import get_model
+from ..dataset import get_generators
 from .loss import CAMLoss
-import tensorflow as tf
+from .arch import Model
 from .. import const
 import mlflow
+import torch
 import sys
-import os
+
+
+def fit(model, optimizer, losses, train, val):
+    if const.LOG_REMOTE: mlflow.set_tracking_uri(const.MLFLOW_TRACKING_URI)
+    with mlflow.start_run():
+        # log hyperparameters
+        mlflow.log_params({k: v for k, v in const.__dict__.items() if k == k.upper() and all(s not in k for s in ['DIR', 'PATH'])})
+        mlflow.log_params({'loss_fn': 'Cross Entropy',
+                           'optimizer_fn': 'Stochastic Gradient Descent'})
+
+        interval = max(1, (const.EPOCHS // 10))
+        for epoch in range(const.EPOCHS):
+            if not (epoch+1) % interval: print('-' * 10)
+            training_loss = torch.empty(len(losses))
+            validation_loss = torch.empty(len(losses))
+
+            for train_batch, valid_batch in zip(train, val):
+                optimizer.zero_grad()
+
+                X_train, y_train, X_valid, y_valid = map(lambda x: x.to(const.DEVICE), [*train_batch, *valid_batch])
+                y_pred_train = model(X_train)
+
+                with torch.no_grad():
+                    y_pred_valid = model(X_valid)
+
+                train_batch_loss = list(map(lambda loss, pred: loss(pred, y_train), losses, y_pred_train))
+                training_loss = torch.vstack([training_loss, torch.tensor(train_batch_loss)])
+                validation_loss = torch.vstack([validation_loss, torch.tensor(list(map(lambda loss, pred: loss(pred, y_valid), losses, y_pred_valid)))])
+
+                sum(map(lambda weight, loss: weight * loss, const.LOSS_WEIGHTS, train_batch_loss)).backward()
+                optimizer.step()
+
+            training_loss = training_loss.mean(dim=0)
+            validation_loss = validation_loss.mean(dim=0)
+            metrics = {'combined_loss': training_loss.sum().item(),
+                       'cse_loss': training_loss[0].item(),
+                       'cam_loss': training_loss[1].item(),
+                       'val_loss': validation_loss.sum().item(),
+                       'val_cse_loss': validation_loss[0].item(),
+                       'val_cam_loss': validation_loss[1].item()}
+            mlflow.log_metrics(metrics, step=epoch)
+            if not (epoch+1) % interval:
+                print(f'epoch\t\t: {epoch+1}')
+                for key in metrics: print(f'{key}\t\t: {metrics[key]}')
+        print('-' * 10)
 
 
 if __name__ == '__main__':
     name = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
-    multiheaded = const.MODEL_NAME != name
+    train, val, test = get_generators()
 
-    train, val, test = get_dataset()
-    model = get_model(const.IMAGE_SIZE, const.N_CLASSES, name, const.N_CHANNELS, multiheaded=multiheaded)
-    model.summary()
+    model = Model(const.IMAGE_SHAPE).to(const.DEVICE)
 
-    optimizer = tf.keras.optimizers.SGD(learning_rate=const.LEARNING_RATE[0],
-                                        momentum=const.MOMENTUM)
-    loss_weights = const.LOSS_WEIGHTS[0] if multiheaded else K.variable(1)
-    losses = ['binary_crossentropy', CAMLoss(loss_weights)] if multiheaded else 'binary_crossentropy'
-    model.compile(optimizer=optimizer,
-                  loss=losses,
-                  loss_weights=loss_weights,
-                  metrics={'output': 'accuracy'})
-
-    if const.LOG: mlflow.tensorflow.autolog(log_models=False)
-    model.fit(train,
-              epochs=const.EPOCHS,
-              validation_data=val,
-              use_multiprocessing=False,
-              callbacks=get_callbacks(const.LIMIT, loss_weights))
-
-    model.compile(optimizer=optimizer,
-                  loss=losses,
-                  metrics={'output': 'accuracy'})  # recompiling since tensorflow does not serialize backend-tampered variables
-    metrics = model.evaluate(test)
-    model.save(os.path.join(const.BASE_DIR, *const.SAVED_MODEL_PATH, name))
+    optimizer = torch.optim.SGD(model.parameters(),
+                                lr=const.LEARNING_RATE,
+                                momentum=const.MOMENTUM)
+    losses = [torch.nn.CrossEntropyLoss(), CAMLoss(model.penultimate.shape[-2:])]
+    fit(model, optimizer, losses, train, val)
+    torch.save(model.state_dict(), const.SAVE_MODEL_PATH / f'{name}.pt')
