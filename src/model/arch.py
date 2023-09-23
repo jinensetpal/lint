@@ -15,13 +15,13 @@ class Model(torch.nn.Module):
         self.backbone.layer4[-1].relu.register_forward_hook(self._hook)
         self.penultimate = None
 
-        self.linear = nn.Linear(self._backbone_out_shape(input_shape), 2)
-        self.softmax = nn.Softmax(dim=1)  # ~equivalent to sigmoid since classes = 2; for CAMs
+        self.linear = nn.Linear(self._backbone_out_shape(input_shape), 1)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
         x = self.backbone(x)
         x = self.linear(x)
-        x = self.softmax(x)
+        x = self.sigmoid(x)
 
         return x, self._compute_cam(torch.argmax(x, dim=1))
 

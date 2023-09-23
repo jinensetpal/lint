@@ -14,8 +14,8 @@ class CAMLoss(nn.Module):
         self.kernel = torch.tensor(np.array(Gaussian2DKernel(const.IMAGE_SIZE[0] * .01, x_size=shape[0], y_size=shape[1]))).to(const.DEVICE)
         self.kernel -= self.kernel.max()
 
-    def forward(self, y_pred, y):
-        return torch.log(torch.square(F.relu(y_pred[:, torch.argmax(y, dim=1)]) * self.kernel).mean())
+    def forward(self, y_pred, _):
+        return torch.log(torch.square(F.relu(y_pred[:, 0]) * self.kernel).mean())
 
 
 if __name__ == '__main__':

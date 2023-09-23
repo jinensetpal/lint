@@ -41,10 +41,10 @@ def fit(model, optimizer, losses, train, val):
             training_loss = training_loss.mean(dim=0)
             validation_loss = validation_loss.mean(dim=0)
             metrics = {'combined_loss': training_loss.sum().item(),
-                       'cse_loss': training_loss[0].item(),
+                       'bce_loss': training_loss[0].item(),
                        'cam_loss': training_loss[1].item(),
                        'val_loss': validation_loss.sum().item(),
-                       'val_cse_loss': validation_loss[0].item(),
+                       'val_bce_loss': validation_loss[0].item(),
                        'val_cam_loss': validation_loss[1].item()}
             mlflow.log_metrics(metrics, step=epoch)
             if not (epoch+1) % interval:
@@ -62,6 +62,6 @@ if __name__ == '__main__':
     optimizer = torch.optim.SGD(model.parameters(),
                                 lr=const.LEARNING_RATE,
                                 momentum=const.MOMENTUM)
-    losses = [torch.nn.CrossEntropyLoss(), CAMLoss(model.penultimate.shape[-2:])]
+    losses = [torch.nn.BCELoss(), CAMLoss(model.penultimate.shape[-2:])]
     fit(model, optimizer, losses, train, val)
     torch.save(model.state_dict(), const.SAVE_MODEL_PATH / f'{name}.pt')
