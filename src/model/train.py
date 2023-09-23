@@ -14,8 +14,7 @@ def fit(model, optimizer, losses, train, val):
     with mlflow.start_run():
         # log hyperparameters
         mlflow.log_params({k: v for k, v in const.__dict__.items() if k == k.upper() and all(s not in k for s in ['DIR', 'PATH'])})
-        mlflow.log_params({'loss_fn': 'Cross Entropy',
-                           'optimizer_fn': 'Stochastic Gradient Descent'})
+        mlflow.log_param('optimizer_fn', 'Stochastic Gradient Descent')
 
         interval = max(1, (const.EPOCHS // 10))
         for epoch in range(const.EPOCHS):

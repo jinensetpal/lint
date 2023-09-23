@@ -17,7 +17,7 @@ LEARNING_RATE = 1E-3
 BATCH_SIZE = 128
 MOMENTUM = 0.9
 EPOCHS = 50
-LOSS_WEIGHTS = [1, 7E-1]
+LOSS_WEIGHTS = [1, 0]  # CSE, CAM
 
 # dataset
 ENCODINGS = {'place': ['land', 'water'],

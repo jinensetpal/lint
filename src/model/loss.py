@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from astropy.convolution import Gaussian2DKernel
+import torch.nn.functional as F
 import torch.nn as nn
 from .. import const
 import numpy as np
@@ -14,7 +15,7 @@ class CAMLoss(nn.Module):
         self.kernel -= self.kernel.max()
 
     def forward(self, y_pred, y):
-        return torch.square(y_pred[:, torch.argmax(y, dim=1)] * self.kernel).mean()
+        return torch.log(torch.square(F.relu(y_pred[:, torch.argmax(y, dim=1)]) * self.kernel).mean())
 
 
 if __name__ == '__main__':
