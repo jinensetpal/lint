@@ -21,6 +21,8 @@ def fit(model, optimizer, losses, train, val):
             if not (epoch+1) % interval: print('-' * 10)
             training_loss = torch.empty(len(losses))
             validation_loss = torch.empty(len(losses))
+            training_acc = torch.empty(1)
+            validation_acc = torch.empty(1)
 
             for train_batch, valid_batch in zip(train, val):
                 optimizer.zero_grad()
@@ -30,6 +32,8 @@ def fit(model, optimizer, losses, train, val):
 
                 with torch.no_grad():
                     y_pred_valid = model(X_valid)
+                training_acc = torch.vstack([training_acc.to(const.DEVICE), y_train == y_pred_train[0]])
+                validation_acc = torch.vstack([validation_acc.to(const.DEVICE), y_valid == y_pred_valid[0]])
 
                 train_batch_loss = list(map(lambda loss, pred: loss(pred, y_train), losses, y_pred_train))
                 training_loss = torch.vstack([training_loss, torch.tensor(train_batch_loss)])
@@ -43,6 +47,8 @@ def fit(model, optimizer, losses, train, val):
             metrics = {'combined_loss': training_loss.sum().item(),
                        'bce_loss': training_loss[0].item(),
                        'cam_loss': training_loss[1].item(),
+                       'train_acc': (training_acc.sum() / training_acc.shape[0]).item(),
+                       'valid_acc': (validation_acc.sum() / validation_acc.shape[0]).item(),
                        'val_loss': validation_loss.sum().item(),
                        'val_bce_loss': validation_loss[0].item(),
                        'val_cam_loss': validation_loss[1].item()}
