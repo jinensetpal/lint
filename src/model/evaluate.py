@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from IPython import embed
 
 from ..dataset import get_generators
 from ..model.arch import Model
@@ -10,15 +11,16 @@ import sys
 def group_accuracy(model, gen):
     grp = {}
     for (x, y, p) in gen:
-        y = y.argmax(dim=1).to(const.DEVICE)
+        y = y.to(const.DEVICE)
         p = p.to(const.DEVICE)
-        pred = model(x.to(const.DEVICE))[0].argmax(dim=1)
+        with torch.no_grad():
+            pred = model(x.to(const.DEVICE))[0] > 0.5
 
         for label in [0, 1]:
             for place in [0, 1]:
                 if label not in grp: grp[label] = {}
                 if place not in grp[label]: grp[label][place] = torch.tensor([]).to(const.DEVICE)
-                grp[label][place] = torch.cat([grp[label][place], pred[((y == label) & (p == place))]], dim=0)
+                grp[label][place] = torch.cat([grp[label][place], pred[(label == y).ravel() & (place == p)].ravel()], dim=0)
 
     for label in [0, 1]:
         grp[const.ENCODINGS['label'][label]] = {}
