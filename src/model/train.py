@@ -42,13 +42,15 @@ def fit(model, optimizer, losses, train, val):
                 sum(map(lambda weight, loss: weight * loss, const.LOSS_WEIGHTS, train_batch_loss)).backward()
                 optimizer.step()
 
-            training_loss = training_loss.mean(dim=0)
-            validation_loss = validation_loss.mean(dim=0)
+            training_acc = training_acc[1:]
+            validation_acc = validation_acc[1:]
+            training_loss = training_loss[1:].mean(dim=0)
+            validation_loss = validation_loss[1:].mean(dim=0)
             metrics = {'combined_loss': training_loss.sum().item(),
                        'bce_loss': training_loss[0].item(),
                        'cam_loss': training_loss[1].item(),
-                       'train_acc': (training_acc.sum() / training_acc.shape[0]).item(),
-                       'valid_acc': (validation_acc.sum() / validation_acc.shape[0]).item(),
+                       'train_acc': (training_acc[1:].sum() / training_acc.shape[0]).item(),
+                       'valid_acc': (validation_acc[1:].sum() / validation_acc.shape[0]).item(),
                        'val_loss': validation_loss.sum().item(),
                        'val_bce_loss': validation_loss[0].item(),
                        'val_cam_loss': validation_loss[1].item()}
