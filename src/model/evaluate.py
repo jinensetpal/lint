@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from IPython import embed
 
 from ..dataset import get_generators
 from ..model.arch import Model
@@ -25,7 +24,7 @@ def group_accuracy(model, gen):
     for label in [0, 1]:
         grp[const.ENCODINGS['label'][label]] = {}
         for place in [0, 1]:
-            grp[const.ENCODINGS['label'][label]][const.ENCODINGS['place'][place]] = (grp[label][place] == label).to(torch.float).mean()
+            grp[const.ENCODINGS['label'][label]][const.ENCODINGS['place'][place]] = (grp[label][place] == label).to(torch.float).mean().item()
         del grp[label]
     return grp
 

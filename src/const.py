@@ -14,10 +14,10 @@ SAVE_MODEL_PATH = BASE_DIR / 'models'
 MODEL_NAME = 'default'
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 LEARNING_RATE = 1E-3
-BATCH_SIZE = 128
+BATCH_SIZE = 16
 MOMENTUM = 0.9
 EPOCHS = 50
-LOSS_WEIGHTS = [1, 0]  # CSE, CAM
+LOSS_WEIGHTS = [1, 1E6]  # CSE, CAM
 
 # dataset
 ENCODINGS = {'place': ['land', 'water'],
