@@ -32,8 +32,8 @@ def fit(model, optimizer, losses, train, val):
 
                 with torch.no_grad():
                     y_pred_valid = model(X_valid)
-                training_acc = torch.vstack([training_acc.to(const.DEVICE), y_train == y_pred_train[0]])
-                validation_acc = torch.vstack([validation_acc.to(const.DEVICE), y_valid == y_pred_valid[0]])
+                training_acc = torch.vstack([training_acc.to(const.DEVICE), y_train == (y_pred_train[0] > 0.5)])
+                validation_acc = torch.vstack([validation_acc.to(const.DEVICE), y_valid == (y_pred_valid[0] > 0.5)])
 
                 train_batch_loss = list(map(lambda loss, pred: loss(pred, y_train), losses, y_pred_train))
                 training_loss = torch.vstack([training_loss, torch.tensor(train_batch_loss)])
@@ -56,7 +56,7 @@ def fit(model, optimizer, losses, train, val):
                        'val_cam_loss': validation_loss[1].item()}
             mlflow.log_metrics(metrics, step=epoch)
             if not (epoch+1) % interval:
-                print(f'epoch\t\t: {epoch+1}')
+                print(f'epoch\t\t\t: {epoch+1}')
                 for key in metrics: print(f'{key}\t\t: {metrics[key]}')
         print('-' * 10)
 
