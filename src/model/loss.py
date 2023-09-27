@@ -22,8 +22,8 @@ class EmbeddingLoss(nn.Module):
         self.d_neg = (self.means[1] - self.means[0]).pow(2).sum(0)
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, positive, _):
-        positive = torch.tensor(np.array([resize(mask[0].cpu().detach().numpy(), const.IMAGE_SIZE) for mask in positive])).unsqueeze(1).to(const.DEVICE)
+    def forward(self, positive, y):
+        positive = torch.tensor(np.array([resize(mask[label].cpu().detach().numpy(), const.IMAGE_SIZE) for (mask, label) in zip(positive, torch.argmax(y, dim=1))])).unsqueeze(1).to(const.DEVICE)
         with torch.no_grad():
             d_pos = (self.encoder(self.sigmoid(positive).repeat(1, 3, 1, 1)) - self.means[0]).pow(2).sum(1)
 
@@ -37,8 +37,8 @@ class RadialLoss(nn.Module):
         self.kernel -= self.kernel.max()
         self.kernel = torch.square(self.kernel)
 
-    def forward(self, y_pred, _):
-        return torch.square(y_pred[:, 0] * self.kernel).mean()
+    def forward(self, y_pred, y):
+        return torch.square(y_pred[:, torch.argmax(y, dim=1)] * self.kernel).mean()
 
 
 if __name__ == '__main__':

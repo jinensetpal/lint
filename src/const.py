@@ -15,9 +15,9 @@ ANNOTATIONS_PATH = DATA_DIR / 'annotations' / 'result.json'
 MODEL_NAME = 'default'
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 LEARNING_RATE = 1E-3
-BATCH_SIZE = 96
+BATCH_SIZE = 2
 MOMENTUM = 0.9
-EPOCHS = 50
+EPOCHS = 1
 LOSS_WEIGHTS = [1, 1E-4]  # CSE, CAM
 
 # siamese
@@ -38,4 +38,4 @@ IMAGE_SHAPE = (N_CHANNELS,) + IMAGE_SIZE
 
 # logging
 MLFLOW_TRACKING_URI = 'https://dagshub.com/jinensetpal/lint.mlflow'
-LOG_REMOTE = True
+LOG_REMOTE = False

@@ -19,10 +19,10 @@ def fit(model, optimizer, losses, train, val):
         interval = max(1, (const.EPOCHS // 10))
         for epoch in range(const.EPOCHS):
             if not (epoch+1) % interval: print('-' * 10)
-            training_loss = torch.empty(len(losses))
-            validation_loss = torch.empty(len(losses))
-            training_acc = torch.empty(1)
-            validation_acc = torch.empty(1)
+            train_loss = torch.empty(len(losses))
+            valid_loss = torch.empty(len(losses))
+            train_acc = torch.empty(1)
+            valid_acc = torch.empty(1)
 
             for train_batch, valid_batch in zip(train, val):
                 optimizer.zero_grad()
@@ -32,28 +32,28 @@ def fit(model, optimizer, losses, train, val):
 
                 with torch.no_grad():
                     y_pred_valid = model(X_valid)
-                training_acc = torch.vstack([training_acc.to(const.DEVICE), y_train == (y_pred_train[0] > 0.5)])
-                validation_acc = torch.vstack([validation_acc.to(const.DEVICE), y_valid == (y_pred_valid[0] > 0.5)])
+                train_acc = torch.vstack([train_acc.to(const.DEVICE), (torch.argmax(y_train, dim=1) == torch.argmax(y_pred_train[0], dim=1)).unsqueeze(1)])
+                valid_acc = torch.vstack([valid_acc.to(const.DEVICE), (torch.argmax(y_valid, dim=1) == torch.argmax(y_pred_valid[0], dim=1)).unsqueeze(1)])
 
                 train_batch_loss = list(map(lambda loss, pred: loss(pred, y_train), losses, y_pred_train))
-                training_loss = torch.vstack([training_loss, torch.tensor(train_batch_loss)])
-                validation_loss = torch.vstack([validation_loss, torch.tensor(list(map(lambda loss, pred: loss(pred, y_valid), losses, y_pred_valid)))])
+                train_loss = torch.vstack([train_loss, torch.tensor(train_batch_loss)])
+                valid_loss = torch.vstack([valid_loss, torch.tensor(list(map(lambda loss, pred: loss(pred, y_valid), losses, y_pred_valid)))])
 
                 sum(map(lambda weight, loss: weight * loss, const.LOSS_WEIGHTS, train_batch_loss)).backward()
                 optimizer.step()
 
-            training_acc = training_acc[1:]
-            validation_acc = validation_acc[1:]
-            training_loss = training_loss[1:].mean(dim=0)
-            validation_loss = validation_loss[1:].mean(dim=0)
-            metrics = {'combined_loss': training_loss.sum().item(),
-                       'bce_loss': training_loss[0].item(),
-                       'cam_loss': training_loss[1].item(),
-                       'train_acc': (training_acc[1:].sum() / training_acc.shape[0]).item(),
-                       'valid_acc': (validation_acc[1:].sum() / validation_acc.shape[0]).item(),
-                       'val_loss': validation_loss.sum().item(),
-                       'val_bce_loss': validation_loss[0].item(),
-                       'val_cam_loss': validation_loss[1].item()}
+            train_acc = train_acc[1:]
+            valid_acc = valid_acc[1:]
+            train_loss = train_loss[1:].mean(dim=0)
+            valid_loss = valid_loss[1:].mean(dim=0)
+            metrics = {'combined_loss': train_loss.sum().item(),
+                       'cse_loss': train_loss[0].item(),
+                       'cam_loss': train_loss[1].item(),
+                       'train_acc': (train_acc[1:].sum() / train_acc.shape[0]).item(),
+                       'valid_acc': (valid_acc[1:].sum() / valid_acc.shape[0]).item(),
+                       'val_loss': valid_loss.sum().item(),
+                       'val_cse_loss': valid_loss[0].item(),
+                       'val_cam_loss': valid_loss[1].item()}
             mlflow.log_metrics(metrics, step=epoch)
             if not (epoch+1) % interval:
                 print(f'epoch\t\t\t: {epoch+1}')
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     optimizer = torch.optim.SGD(model.parameters(),
                                 lr=const.LEARNING_RATE,
                                 momentum=const.MOMENTUM)
-    losses = [torch.nn.BCELoss(),
+    losses = [torch.nn.CrossEntropyLoss(),
               EmbeddingLoss() if const.USE_SIAMESE_LOSS else RadialLoss(model.penultimate.shape[-2:])]
     fit(model, optimizer, losses, train, val)
     torch.save(model.state_dict(), const.SAVE_MODEL_PATH / f'{name}.pt')
