@@ -33,7 +33,8 @@ if __name__ == '__main__':
     name = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
 
     model = Model(input_shape=const.IMAGE_SHAPE).to(const.DEVICE)
-    model.load_state_dict(torch.load(const.SAVE_MODEL_PATH / f'{name}.pt'))
+    model.load_state_dict(torch.load(const.SAVE_MODEL_PATH / f'{name}.pt',
+                          map_location=const.DEVICE))
     model.eval()
 
     for gen in get_generators(state='evaluation'): print(gen.dataset.split, group_accuracy(model, gen))

@@ -6,6 +6,7 @@ from ..data.siamese import Dataset
 import torch.nn as nn
 from .. import const
 import numpy as np
+import torchvision
 import torch
 
 
@@ -13,7 +14,8 @@ class EmbeddingLoss(nn.Module):
     def __init__(self):
         super().__init__()
         self.encoder = get_model().to(const.DEVICE)
-        self.encoder.load_state_dict(torch.load(const.SAVE_MODEL_PATH / 'maskencoder.pt'))
+        self.encoder.load_state_dict(torch.load(const.SAVE_MODEL_PATH / 'maskencoder.pt',
+                                     map_location=const.DEVICE))
         self.encoder.eval()
         self.means = Dataset().means(self.encoder)
 
@@ -22,7 +24,7 @@ class EmbeddingLoss(nn.Module):
 
     def forward(self, positive, _):
         with torch.no_grad():
-            d_pos = (self.encoder((self.sigmoid(positive) > .5).to(torch.float).repeat(1, 3, 1, 1)) - self.means[0]).pow(2).sum(1)
+            d_pos = (self.encoder(torchvision.transforms.functional.resize(self.sigmoid(positive) > .5, const.IMAGE_SIZE, antialias=True).to(torch.float).repeat(1, 3, 1, 1)) - self.means[0]).pow(2).sum(1)
 
         return nn.functional.relu(d_pos - self.d_neg).mean().item()
 
