@@ -2,11 +2,11 @@
 
 from astropy.convolution import Gaussian2DKernel
 from ..clustering.train import get_model
+from skimage.transform import resize
 from ..data.siamese import Dataset
 import torch.nn as nn
 from .. import const
 import numpy as np
-import torchvision
 import torch
 
 
@@ -23,6 +23,7 @@ class EmbeddingLoss(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, positive, _):
+        positive = torch.tensor(np.array([resize(mask[0].cpu().detach().numpy(), const.IMAGE_SIZE) for mask in positive])).unsqueeze(1).to(const.DEVICE)
         with torch.no_grad():
             d_pos = (self.encoder(self.sigmoid(positive).repeat(1, 3, 1, 1)) - self.means[0]).pow(2).sum(1)
 
@@ -43,7 +44,7 @@ class RadialLoss(nn.Module):
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
-    loss = RadialLoss((7, 7))
+    loss = RadialLoss(const.CAM_SIZE)
     plt.imshow(loss.kernel.detach().cpu())
     plt.colorbar()
     plt.show()

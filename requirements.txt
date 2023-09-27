@@ -1,8 +1,10 @@
 mlflow==2.6.0
 dvc==3.17.0
-opencv-python==4.8.0.76
 ipykernel==6.25.1
 astropy==5.3.2
 dvc-s3==2.23.0
 torch==2.0.1
 torchvision==0.15.2
+matplotlib==3.7.2
+pycocotools==2.0.7
+scikit-image==0.21.0
