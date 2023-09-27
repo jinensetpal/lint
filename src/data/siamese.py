@@ -31,7 +31,7 @@ class Dataset(torch.utils.data.Dataset):
         return (self.masks[idx[0]], self.masks[idx[1]], self.inv_masks[idx[2]])
 
     def means(self, model):
-        return [model(x).mean(axis=0) for x in (self.masks, self.inv_masks)]
+        return [model(x.to(const.DEVICE)).mean(axis=0) for x in (self.masks, self.inv_masks)]
 
 
 if __name__ == '__main__':

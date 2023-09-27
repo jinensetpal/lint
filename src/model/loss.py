@@ -1,10 +1,30 @@
 #!/usr/bin/env python3
 
 from astropy.convolution import Gaussian2DKernel
+from ..clustering.train import get_model
+from ..data.siamese import Dataset
 import torch.nn as nn
 from .. import const
 import numpy as np
 import torch
+
+
+class EmbeddingLoss(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.encoder = get_model().to(const.DEVICE)
+        self.encoder.load_state_dict(torch.load(const.SAVE_MODEL_PATH / 'maskencoder.pt'))
+        self.encoder.eval()
+        self.means = Dataset().means(self.encoder)
+
+        self.d_neg = (self.means[1] - self.means[0]).pow(2).sum(0)
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, positive, _):
+        with torch.no_grad():
+            d_pos = (self.encoder((self.sigmoid(positive) > .5).to(torch.float).repeat(1, 3, 1, 1)) - self.means[0]).pow(2).sum(1)
+
+        return nn.functional.relu(d_pos - self.d_neg).mean().item()
 
 
 class RadialLoss(nn.Module):
