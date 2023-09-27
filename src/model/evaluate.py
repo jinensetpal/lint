@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from ..dataset import get_generators
+from ..data.waterbirds import get_generators
 from ..model.arch import Model
 from .. import const
 import torch
