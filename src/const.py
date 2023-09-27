@@ -6,18 +6,24 @@ import torch
 # directories
 BASE_DIR = Path(__file__).parent.parent
 DATA_DIR = BASE_DIR / 'data'
-SAMPLE_SAVE_DIR = DATA_DIR / 'samples'
+DB_PATH = DATA_DIR / 'db'
 CAMS_SAVE_DIR = DATA_DIR / 'cams'
 SAVE_MODEL_PATH = BASE_DIR / 'models'
+ANNOTATIONS_PATH = DATA_DIR / 'annotations' / 'result.json'
 
 # training
 MODEL_NAME = 'default'
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 LEARNING_RATE = 1E-3
-BATCH_SIZE = 16
+BATCH_SIZE = 128
 MOMENTUM = 0.9
 EPOCHS = 50
 LOSS_WEIGHTS = [1, 1E6]  # CSE, CAM
+
+# siamese
+S_ALPHA = 20  # for triplet loss
+S_EPOCHS = 5
+S_BATCH_SIZE = 16
 
 # dataset
 ENCODINGS = {'place': ['land', 'water'],

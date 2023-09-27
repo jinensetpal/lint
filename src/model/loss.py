@@ -7,7 +7,7 @@ import numpy as np
 import torch
 
 
-class CAMLoss(nn.Module):
+class RadialLoss(nn.Module):
     def __init__(self, shape):
         super().__init__()
         self.kernel = torch.tensor(np.array(Gaussian2DKernel(const.IMAGE_SIZE[0] * .01, x_size=shape[0], y_size=shape[1]))).to(const.DEVICE)
@@ -21,7 +21,7 @@ class CAMLoss(nn.Module):
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
-    loss = CAMLoss((7, 7))
+    loss = RadialLoss((7, 7))
     plt.imshow(loss.kernel.detach().cpu())
     plt.colorbar()
     plt.show()

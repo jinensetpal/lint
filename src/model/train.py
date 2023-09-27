@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from ..dataset import get_generators
-from .loss import CAMLoss
+from .loss import RadialLoss
 from .arch import Model
 from .. import const
 import mlflow
@@ -70,6 +70,6 @@ if __name__ == '__main__':
     optimizer = torch.optim.SGD(model.parameters(),
                                 lr=const.LEARNING_RATE,
                                 momentum=const.MOMENTUM)
-    losses = [torch.nn.BCELoss(), CAMLoss(model.penultimate.shape[-2:])]
+    losses = [torch.nn.BCELoss(), RadialLoss(model.penultimate.shape[-2:])]
     fit(model, optimizer, losses, train, val)
     torch.save(model.state_dict(), const.SAVE_MODEL_PATH / f'{name}.pt')
