@@ -12,11 +12,10 @@ class Model(torch.nn.Module):
 
         self.convs = nn.ModuleList([nn.Conv2d(*filters, 2, padding='same') for filters in pairwise([3, 16, 64, 32])])
         self.batchnorms = nn.ModuleList([nn.BatchNorm2d(channels) for channels in [16, 64, 32]])
+        self.avgpool = nn.AvgPool2d(2)
 
-        self.maxpool = nn.MaxPool2d(2)
-
-        self.flatten = nn.Flatten()
         self.penultimate = None
+        self.flatten = nn.Flatten()
 
         self.linears = nn.ModuleList([nn.LazyLinear(units) for units in [128, 128, 64, 32, 2]])
         self.relu = nn.ReLU()
@@ -27,7 +26,7 @@ class Model(torch.nn.Module):
             x = conv(x)
             self.penultimate = x
             x = bn(x)
-            x = self.maxpool(x)
+            x = self.avgpool(x)
         x = self.flatten(x)
 
         for linear in self.linears[:-1]:
