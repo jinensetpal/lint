@@ -13,13 +13,13 @@ def group_accuracy(model, gen):
         y = y.to(const.DEVICE)
         p = p.to(const.DEVICE)
         with torch.no_grad():
-            pred = model(x.to(const.DEVICE))[0] > 0.5
+            pred = torch.argmax(model(x.to(const.DEVICE))[0], dim=1)
 
         for label in [0, 1]:
             for place in [0, 1]:
                 if label not in grp: grp[label] = {}
                 if place not in grp[label]: grp[label][place] = torch.tensor([]).to(const.DEVICE)
-                grp[label][place] = torch.cat([grp[label][place], pred[(label == y).ravel() & (place == p)].ravel()], dim=0)
+                grp[label][place] = torch.cat([grp[label][place], pred[(label == torch.argmax(y, dim=1)).ravel() & (place == p)].ravel()], dim=0)
 
     for label in [0, 1]:
         grp[const.ENCODINGS['label'][label]] = {}
