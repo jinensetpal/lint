@@ -62,7 +62,7 @@ def fit(model, optimizer, losses, train, val):
 
 
 if __name__ == '__main__':
-    name = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
+    const.MODEL_NAME = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
     train, val, test = get_generators()
 
     model = Model(const.IMAGE_SHAPE).to(const.DEVICE)
@@ -73,4 +73,4 @@ if __name__ == '__main__':
     losses = [torch.nn.CrossEntropyLoss(),
               EmbeddingLoss() if const.USE_SIAMESE_LOSS else RadialLoss(model.penultimate.shape[-2:])]
     fit(model, optimizer, losses, train, val)
-    torch.save(model.state_dict(), const.SAVE_MODEL_PATH / f'{name}.pt')
+    torch.save(model.state_dict(), const.SAVE_MODEL_PATH / f'{const.MODEL_NAME}.pt')

@@ -18,7 +18,7 @@ LEARNING_RATE = 1E-3
 BATCH_SIZE = 128
 MOMENTUM = 0.9
 EPOCHS = 20
-LOSS_WEIGHTS = [1, 1E-1]  # CSE, CAM
+LOSS_WEIGHTS = [1, 1]  # CSE, CAM
 
 # siamese
 S_ALPHA = 20  # for triplet loss

@@ -46,7 +46,7 @@ def fit(model, optimizer, loss, dataloader):
 
 
 if __name__ == '__main__':
-    name = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
+    const.MODEL_NAME = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
 
     dataloader = torch.utils.data.DataLoader(Dataset(),
                                              batch_size=const.S_BATCH_SIZE,
@@ -57,4 +57,4 @@ if __name__ == '__main__':
     loss = TripletLoss(const.S_ALPHA).to(const.DEVICE)
 
     fit(model, optimizer, loss, dataloader)
-    torch.save(model.state_dict(), const.SAVE_MODEL_PATH / f'{name}.pt')
+    torch.save(model.state_dict(), const.SAVE_MODEL_PATH / f'{const.MODEL_NAME}.pt')
