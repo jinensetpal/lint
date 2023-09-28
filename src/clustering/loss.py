@@ -12,4 +12,4 @@ class TripletLoss(nn.Module):
         d_pos = (positive - anchor).pow(2).sum(1)
         d_neg = (negative - anchor).pow(2).sum(1)
 
-        return nn.functional.relu(d_pos + self.alpha - d_neg).mean()
+        return torch.log(nn.functional.relu(d_pos + self.alpha - d_neg).mean())
