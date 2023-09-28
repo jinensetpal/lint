@@ -53,7 +53,7 @@ if __name__ == '__main__':
                                              shuffle=True)
     model = get_model().to(const.DEVICE)
     optimizer = torch.optim.Adam(model.parameters(),
-                                 lr=const.LEARNING_RATE)
+                                 lr=const.S_LEARNING_RATE)
     loss = TripletLoss(const.S_ALPHA).to(const.DEVICE)
 
     fit(model, optimizer, loss, dataloader)

@@ -12,8 +12,7 @@ class Dataset(torch.utils.data.Dataset):
     def __init__(self, split=None, state='training'):
         coco = COCO(const.ANNOTATIONS_PATH)
 
-        # intentionally lossy mask render
-        self.masks = torch.tensor(np.array(list(map(lambda x: resize(resize(resize(coco.annToMask(x), const.IMAGE_SIZE), const.CAM_SIZE), const.IMAGE_SIZE),
+        self.masks = torch.tensor(np.array(list(map(lambda x: resize(resize(coco.annToMask(x), const.IMAGE_SIZE), const.CAM_SIZE),
                                                     coco.loadAnns(range(len(coco.imgs))))))).to(torch.float).unsqueeze(1).repeat(1, 3, 1, 1)
         self.inv_masks = torch.abs(self.masks - 1)
         self.order = [(*combination, neg) for neg in range(self.masks.shape[0]) for combination in list(permutations(range(self.masks.shape[0]), 2))]

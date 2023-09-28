@@ -22,9 +22,10 @@ LOSS_WEIGHTS = [1, 1E-4]  # CSE, CAM
 
 # siamese
 S_ALPHA = 20  # for triplet loss
-S_EPOCHS = 5
-CAM_SIZE = (7, 7)
-S_BATCH_SIZE = 16
+S_EPOCHS = 1
+S_BATCH_SIZE = 2
+CAM_SIZE = (56, 56)
+S_LEARNING_RATE = 1E-5
 USE_SIAMESE_LOSS = True
 
 # dataset
