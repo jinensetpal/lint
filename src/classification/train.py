@@ -29,16 +29,18 @@ def fit(model, optimizer, losses, train, val):
 
                 X_train, y_train, X_valid, y_valid = map(lambda x: x.to(const.DEVICE), [*train_batch, *valid_batch])
                 y_pred_train = model(X_train)
+                y_pred_valid = model(X_valid)
 
-                with torch.no_grad():
-                    y_pred_valid = model(X_valid)
                 train_acc = torch.vstack([train_acc.to(const.DEVICE), (torch.argmax(y_train, dim=1) == torch.argmax(y_pred_train[0], dim=1)).unsqueeze(1)])
                 valid_acc = torch.vstack([valid_acc.to(const.DEVICE), (torch.argmax(y_valid, dim=1) == torch.argmax(y_pred_valid[0], dim=1)).unsqueeze(1)])
 
                 train_batch_loss = list(map(lambda loss, pred: loss(pred, y_train), losses, y_pred_train))
                 train_batch_loss[-1] = min(10 * train_batch_loss[0], train_batch_loss[-1])
                 train_loss = torch.vstack([train_loss, torch.tensor(train_batch_loss)])
-                valid_loss = torch.vstack([valid_loss, torch.tensor(list(map(lambda loss, pred: loss(pred, y_valid), losses, y_pred_valid)))])
+
+                valid_batch_loss = list(map(lambda loss, pred: loss(pred, y_valid), losses, y_pred_valid))
+                valid_batch_loss[-1] = min(10 * valid_batch_loss[0], valid_batch_loss[-1])
+                valid_loss = torch.vstack([valid_loss, torch.tensor(valid_batch_loss)])
 
                 sum(map(lambda weight, loss: weight * loss, const.LOSS_WEIGHTS, train_batch_loss)).backward()
                 optimizer.step()
