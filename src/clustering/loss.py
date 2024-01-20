@@ -3,7 +3,6 @@
 from torch.nn import functional as F
 from torch.nn import Module
 from src import const
-import torch
 
 
 def l1_penalty(self):
