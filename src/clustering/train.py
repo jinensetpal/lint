@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
+from .loss import TripletLoss, l1_penalty
 from ..data.siamese import Dataset
-from .loss import TripletLoss
 from .. import const
 import torchvision
 import mlflow
@@ -26,18 +26,27 @@ def fit(model, optimizer, loss, dataloader):
         for epoch in range(const.S_EPOCHS):
             if not (epoch+1) % interval: print('-' * 10)
             epoch_loss = torch.empty(1)
+            triplet_loss = torch.empty(1)
+            l1_loss = torch.empty(1)
 
             for batch in dataloader:
                 optimizer.zero_grad()
 
                 anchor, positive, negative = [model(x.to(const.DEVICE)) for x in batch]
-                batch_loss = loss(anchor, positive, negative)
+                triplet_batch_loss = loss(anchor, positive, negative)
+                l1_batch_loss = l1_penalty(model)
+
+                batch_loss = triplet_batch_loss + l1_batch_loss
                 batch_loss.backward()
                 optimizer.step()
 
+                l1_loss = torch.vstack([l1_loss.to(const.DEVICE), l1_batch_loss])
+                triplet_loss = torch.vstack([triplet_loss.to(const.DEVICE), triplet_batch_loss])
                 epoch_loss = torch.vstack([epoch_loss.to(const.DEVICE), batch_loss])
 
-            metrics = {'triplet_loss': epoch_loss[1:].mean().item()}
+            metrics = {'batch_loss': epoch_loss[1:].mean().item(),
+                       'triplet_loss': triplet_loss[1:].mean().item(),
+                       'l1_loss': l1_loss[1:].mean().item()}
             mlflow.log_metrics(metrics, step=epoch)
             if not (epoch+1) % interval:
                 print(f'epoch\t\t\t: {epoch+1}')
@@ -57,4 +66,4 @@ if __name__ == '__main__':
     loss = TripletLoss(const.S_ALPHA).to(const.DEVICE)
 
     fit(model, optimizer, loss, dataloader)
-    torch.save(model.state_dict(), const.SAVE_MODEL_PATH / f'{const.MODEL_NAME}.pt')
+    torch.save(model.state_dict(), const.SAVE_MODEL_PATH / f'{const.S_MODEL_NAME}.pt')

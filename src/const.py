@@ -6,7 +6,6 @@ import torch
 # directories
 BASE_DIR = Path(__file__).parent.parent
 DATA_DIR = BASE_DIR / 'data'
-DB_PATH = DATA_DIR / 'db'
 CAMS_SAVE_DIR = DATA_DIR / 'cams'
 SAVE_MODEL_PATH = BASE_DIR / 'models'
 ANNOTATIONS_PATH = DATA_DIR / 'annotations' / 'result.json'
@@ -22,11 +21,13 @@ LOSS_WEIGHTS = [1, 1]  # CSE, CAM
 
 # siamese
 S_ALPHA = 20  # for triplet loss
-S_EPOCHS = 5
+S_L1_ALPHA = 1E-3
+S_EPOCHS = 50
 S_BATCH_SIZE = 16
 CAM_SIZE = (56, 56)
 S_LEARNING_RATE = 1E-5
 USE_SIAMESE_LOSS = True
+S_MODEL_NAME = 'clustering'
 
 # dataset
 ENCODINGS = {'place': ['land', 'water'],
