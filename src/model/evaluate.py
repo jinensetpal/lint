@@ -2,7 +2,7 @@
 
 from ..data.waterbirds import get_generators
 from ..model.arch import Model
-from .. import const
+from src import const
 import torch
 import sys
 

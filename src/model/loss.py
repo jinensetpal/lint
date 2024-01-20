@@ -4,7 +4,7 @@ from astropy.convolution import Gaussian2DKernel
 from ..clustering.train import get_model
 from ..data.siamese import Dataset
 import torch.nn as nn
-from .. import const
+from src import const
 import numpy as np
 import torch
 
@@ -14,7 +14,7 @@ class EmbeddingLoss(nn.Module):
         super().__init__()
         self.encoder = get_model().to(const.DEVICE)
         self.encoder.load_state_dict(torch.load(const.SAVE_MODEL_PATH / 'maskencoder.pt',
-                                     map_location=const.DEVICE))
+                                                map_location=const.DEVICE))
         self.encoder.eval()
         self.means = Dataset().means(self.encoder)
 

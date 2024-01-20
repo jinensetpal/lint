@@ -3,7 +3,7 @@
 from skimage.transform import resize
 from itertools import permutations
 from pycocotools.coco import COCO
-from .. import const
+from src import const
 import numpy as np
 import torch
 

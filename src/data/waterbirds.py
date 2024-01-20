@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from pathlib import PosixPath
-from .. import const
+from src import const
 import pandas as pd
 import torchvision
 import torch

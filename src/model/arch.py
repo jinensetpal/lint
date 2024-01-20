@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from itertools import pairwise
-from .. import const
+from src import const
 from torch import nn
 import torch
 

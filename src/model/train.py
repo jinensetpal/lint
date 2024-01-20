@@ -3,7 +3,7 @@
 from ..data.waterbirds import get_generators
 from .loss import RadialLoss, EmbeddingLoss
 from .arch import Model
-from .. import const
+from src import const
 import mlflow
 import torch
 import sys
