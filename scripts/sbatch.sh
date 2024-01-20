@@ -7,9 +7,9 @@
 module load cuda cudnn anaconda
 source activate lint
 
-cd ~/lint
+cd ~/git/lint
 
 MLFLOW_TRACKING_URI=https://dagshub.com/jinensetpal/lint.mlflow \
 MLFLOW_TRACKING_USERNAME=jinensetpal \
 MLFLOW_TRACKING_PASSWORD=$MLFLOW_TOKEN \
-python -m src.model.train $MODEL_NAME
+python -m src.classification.train $MODEL_NAME

@@ -36,6 +36,7 @@ def fit(model, optimizer, losses, train, val):
                 valid_acc = torch.vstack([valid_acc.to(const.DEVICE), (torch.argmax(y_valid, dim=1) == torch.argmax(y_pred_valid[0], dim=1)).unsqueeze(1)])
 
                 train_batch_loss = list(map(lambda loss, pred: loss(pred, y_train), losses, y_pred_train))
+                train_batch_loss[-1] = min(10 * train_batch_loss[0], train_batch_loss[-1])
                 train_loss = torch.vstack([train_loss, torch.tensor(train_batch_loss)])
                 valid_loss = torch.vstack([valid_loss, torch.tensor(list(map(lambda loss, pred: loss(pred, y_valid), losses, y_pred_valid)))])
 

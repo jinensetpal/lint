@@ -13,8 +13,7 @@ class EmbeddingLoss(nn.Module):
     def __init__(self):
         super().__init__()
         self.encoder = get_model().to(const.DEVICE)
-        self.encoder.load_state_dict(torch.load(const.SAVE_MODEL_PATH / 'maskencoder.pt',
-                                                map_location=const.DEVICE))
+        self.encoder.load_state_dict(torch.load(const.SAVE_MODEL_PATH / 'maskencoder.pt', map_location=const.DEVICE))
         self.encoder.eval()
         self.means = Dataset().means(self.encoder)
 
