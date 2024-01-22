@@ -1,2 +1,2 @@
-papers/** linguist-documentation=true
-slides/** linguist-documentation=true
+slides/** linguist-vendored
+paper/** linguist-vendored
