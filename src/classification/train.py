@@ -11,6 +11,10 @@ import sys
 
 def fit(model, optimizer, losses, train, val):
     if const.LOG_REMOTE: mlflow.set_tracking_uri(const.MLFLOW_TRACKING_URI)
+    best = {'param': model.state_dict(),
+            'epoch': 0,
+            'acc': 0.0}
+
     with mlflow.start_run():
         # log hyperparameters
         mlflow.log_params({k: v for k, v in const.__dict__.items() if k == k.upper() and all(s not in k for s in ['DIR', 'PATH'])})
@@ -58,9 +62,16 @@ def fit(model, optimizer, losses, train, val):
                        'val_cse_loss': valid_loss[0].item(),
                        'val_cam_loss': valid_loss[1].item()}
             mlflow.log_metrics(metrics, step=epoch)
+
+            if metrics['valid_acc'] > best['acc']:
+                best['param'] = model.state_dict()
+                best['epoch'] = epoch+1
+                best['acc'] = metrics['valid_acc']
+
             if not (epoch+1) % interval:
                 print(f'epoch\t\t\t: {epoch+1}')
                 for key in metrics: print(f'{key}\t\t: {metrics[key]}')
+        mlflow.log_param('selected_epoch', best['epoch'])
         print('-' * 10)
 
 
