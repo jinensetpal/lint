@@ -3,6 +3,7 @@
 from itertools import pairwise
 from src import const
 from torch import nn
+import torchvision
 import torch
 
 
@@ -10,35 +11,26 @@ class Model(torch.nn.Module):
     def __init__(self, input_shape):
         super().__init__()
 
+        self.backbone = torchvision.models.resnet50(weights=torchvision.models.ResNet50_Weights.DEFAULT)
+        self.backbone.fc = nn.Identity()
+
         self.feature_grad = None
         self.feature_rect = None
 
-        self.convs = nn.ModuleList([nn.Conv2d(*filters, 2, padding='same') for filters in pairwise([3, 16, 64, 32])])
-        self.batchnorms = nn.ModuleList([nn.BatchNorm2d(channels) for channels in [16, 64, 32]])
-        self.avgpool = nn.AvgPool2d(16)
-        self.convs[-1].register_forward_hook(self.hook)
+        self.backbone.layer4[-1].conv3.register_forward_hook(self._hook)
 
-        self.flatten = nn.Flatten()
         self.linear = nn.LazyLinear(2)
-
-        self.relu = nn.ReLU()
         self.softmax = nn.Softmax(dim=1)  # ~equivalent to sigmoid since classes = 2; for CAMs
 
-    def hook(self, model, i, o):
+    def _hook(self, model, i, o):
         def assign(grad):
             self.feature_grad = grad
         self.feature_rect = o
         o.register_hook(assign)
 
     def forward(self, x):
-        for conv, bn in zip(self.convs, self.batchnorms):
-            x = conv(x)
-            x = bn(x)
-        x = self.avgpool(x)
-        x = self.flatten(x)
-
+        x = self.backbone(x)
         x = self.linear(x)
-        x = self.relu(x)
         x = self.softmax(x)
 
         return x, self._compute_hi_res_cam(x)
