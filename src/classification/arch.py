@@ -41,9 +41,9 @@ class Model(torch.nn.Module):
         x = self.relu(x)
         x = self.softmax(x)
 
-        return x, self._compute_hrs_cam(x)
+        return x, self._compute_hi_res_cam(x)
 
-    def _compute_hrs_cam(self, y):
+    def _compute_hi_res_cam(self, y):
         cams = torch.zeros(*y.shape, *self.feature_rect.shape[2:])
         for img_idx in range(y.shape[0]):
             for class_idx in range(y.shape[1]):
@@ -58,5 +58,5 @@ if __name__ == '__main__':
     print(model)
 
     x = torch.rand((3, *const.IMAGE_SHAPE)).to(const.DEVICE)
-    y, hrs_cam = model(x)
-    print(hrs_cam.shape)
+    y, cam = model(x)
+    print(cam.shape)

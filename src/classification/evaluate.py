@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
-from ..data.waterbirds import get_generators
-from ..arch import Model
+from ..data.waterbirds import Dataset, get_generators
+import matplotlib.pyplot as plt
+from .arch import Model
 from src import const
+import random
 import torch
 import sys
 
@@ -29,11 +31,33 @@ def group_accuracy(model, gen):
     return grp
 
 
+def visualize(model, gen):
+    fig = plt.figure(figsize=(14, 14),
+                     facecolor='white')
+
+    for idx, sample in enumerate(random.sample(range(len(gen)), 16)):
+        X, y = gen[sample]
+        y_pred, cam = model(X.unsqueeze(0).to(const.DEVICE))
+        cam = torch.relu(cam[0][y.argmax().item()]).detach().numpy()
+        cam /= cam.max()
+        fig.add_subplot(4, 4, idx + 1)
+        buf = 'Predicted Class = ' + str(y_pred.argmax().item())
+        plt.xlabel(buf)
+        plt.imshow(X.permute(1, 2, 0).detach().numpy(), alpha=0.5)
+        plt.imshow(cam, cmap='jet', alpha=0.5)
+
+    plt.tight_layout()
+    plt.show()
+    fig.savefig(const.DATA_DIR / 'cams.png')
+
+
 if __name__ == '__main__':
-    name = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
+    name = sys.argv[2] if len(sys.argv) > 2 else const.MODEL_NAME
 
     model = Model(input_shape=const.IMAGE_SHAPE).to(const.DEVICE)
     model.load_state_dict(torch.load(const.SAVE_MODEL_PATH / f'{name}.pt', map_location=const.DEVICE))
     model.eval()
 
-    for gen in get_generators(state='evaluation'): print(gen.dataset.split, group_accuracy(model, gen))
+    if sys.argv[1] == 'group':
+        for gen in get_generators(state='evaluation'): print(gen.dataset.split, group_accuracy(model, gen))
+    else: visualize(model, Dataset(const.DATA_DIR / 'metadata.csv', split='test'))
