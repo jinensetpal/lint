@@ -39,7 +39,7 @@ class Model(torch.nn.Module):
         cams = torch.zeros(*y.shape, *self.feature_rect.shape[2:])
         for img_idx in range(y.shape[0]):
             for class_idx in range(y.shape[1]):
-                (y[img_idx, class_idx]).backward(retain_graph=True)
+                (y[img_idx, class_idx]).backward(retain_graph=True, inputs=self.feature_rect)
                 cams[img_idx, class_idx] = (self.feature_rect * self.feature_grad).sum(1)[img_idx]
         return cams
 

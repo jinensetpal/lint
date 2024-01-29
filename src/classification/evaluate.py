@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from ..data.waterbirds import Dataset, get_generators
+import torch.nn.functional as F
 import matplotlib.pyplot as plt
 from .arch import Model
 from src import const
@@ -14,8 +15,7 @@ def group_accuracy(model, gen):
     for (x, y, p) in gen:
         y = y.to(const.DEVICE)
         p = p.to(const.DEVICE)
-        with torch.no_grad():
-            pred = torch.argmax(model(x.to(const.DEVICE))[0], dim=1)
+        pred = torch.argmax(model(x.to(const.DEVICE))[0], dim=1)
 
         for label in [0, 1]:
             for place in [0, 1]:
@@ -38,13 +38,13 @@ def visualize(model, gen):
     for idx, sample in enumerate(random.sample(range(len(gen)), 16)):
         X, y = gen[sample]
         y_pred, cam = model(X.unsqueeze(0).to(const.DEVICE))
-        cam = torch.relu(cam[0][y.argmax().item()]).detach().numpy()
+        cam = torch.relu(cam[0][y.argmax().item()]).detach()
         cam /= cam.max()
         fig.add_subplot(4, 4, idx + 1)
         buf = 'Predicted Class = ' + str(y_pred.argmax().item())
         plt.xlabel(buf)
         plt.imshow(X.permute(1, 2, 0).detach().numpy(), alpha=0.5)
-        plt.imshow(cam, cmap='jet', alpha=0.5)
+        plt.imshow(F.interpolate(cam[None, None, ...], const.IMAGE_SIZE, mode='bilinear')[0][0].numpy(), cmap='jet', alpha=0.5)
 
     plt.tight_layout()
     plt.show()
