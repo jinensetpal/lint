@@ -11,7 +11,7 @@ class Model(torch.nn.Module):
     def __init__(self, input_shape):
         super().__init__()
 
-        self.backbone = torchvision.models.resnet50(weights=torchvision.models.ResNet50_Weights.DEFAULT)
+        self.backbone = torchvision.models.resnet50(weights=None)
         self.backbone.fc = nn.Identity()
 
         self.feature_grad = None
@@ -20,7 +20,7 @@ class Model(torch.nn.Module):
         self.backbone.layer4[-1].conv3.register_forward_hook(self._hook)
 
         self.linear = nn.LazyLinear(2)
-        self.softmax = nn.Softmax(dim=1)  # ~equivalent to sigmoid since classes = 2; for CAMs
+        self.softmax = nn.Softmax(dim=1)  # ~equivalent to sigmoid since classes = 2; relevant for CAMs
 
     def _hook(self, model, i, o):
         def assign(grad):
