@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from itertools import pairwise
 from src import const
 from torch import nn
 import torchvision

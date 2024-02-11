@@ -3,16 +3,10 @@
 from .loss import TripletLoss, l1_penalty
 from ..data.siamese import Dataset
 from .. import const
-import torchvision
+from torch import nn
 import mlflow
 import torch
 import sys
-
-
-def get_model():
-    backbone = torchvision.models.resnet50(weights=torchvision.models.ResNet50_Weights.DEFAULT)
-    backbone.fc = torch.nn.Identity()
-    return backbone
 
 
 def fit(model, optimizer, loss, dataloader):
@@ -60,7 +54,7 @@ if __name__ == '__main__':
     dataloader = torch.utils.data.DataLoader(Dataset(),
                                              batch_size=const.S_BATCH_SIZE,
                                              shuffle=True)
-    model = get_model().to(const.DEVICE)
+    model = nn.Sequential(nn.Flatten(), nn.LazyLinear(128), nn.Linear(128, 1)).to(const.DEVICE)
     optimizer = torch.optim.Adam(model.parameters(),
                                  lr=const.S_LEARNING_RATE)
     loss = TripletLoss(const.S_ALPHA).to(const.DEVICE)

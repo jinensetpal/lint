@@ -13,15 +13,15 @@ class Dataset(torch.utils.data.Dataset):
         coco = COCO(const.ANNOTATIONS_PATH)
 
         self.masks = torch.tensor(np.array(list(map(lambda x: resize(resize(coco.annToMask(x), const.IMAGE_SIZE), const.CAM_SIZE),
-                                                    coco.loadAnns(range(len(coco.imgs))))))).to(torch.float).unsqueeze(1).repeat(1, 3, 1, 1)
+                                                    coco.loadAnns(range(len(coco.imgs))))))).to(torch.float)
         self.inv_masks = torch.abs(self.masks - 1)
         self.order = [(*combination, neg) for neg in range(self.masks.shape[0]) for combination in list(permutations(range(self.masks.shape[0]), 2))]
 
     def __len__(self):
         return len(self.order) * 2
 
+    # returns anchor, positive, negative
     def __getitem__(self, idx):
-        # returns anchor, positive, negative
         if idx > len(self) / 2:
             # inverse masks
             idx = self.order[idx % 2]

@@ -14,7 +14,7 @@ ANNOTATIONS_PATH = DATA_DIR / 'annotations' / 'result.json'
 MODEL_NAME = 'default'
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 LEARNING_RATE = 1E-3
-BATCH_SIZE = 16
+BATCH_SIZE = 64
 MOMENTUM = 0.9
 EPOCHS = 20
 LOSS_WEIGHTS = [1, 1]  # CSE, CAM
@@ -22,10 +22,10 @@ LOSS_WEIGHTS = [1, 1]  # CSE, CAM
 # siamese
 S_ALPHA = 20  # for triplet loss
 S_L1_ALPHA = 1E-3
-S_EPOCHS = 50
-S_BATCH_SIZE = 16
+S_EPOCHS = 100
+S_BATCH_SIZE = 128
 CAM_SIZE = (7, 7)
-S_LEARNING_RATE = 1E-5
+S_LEARNING_RATE = 5E-5
 USE_SIAMESE_LOSS = True
 S_MODEL_NAME = 'clustering'
 
