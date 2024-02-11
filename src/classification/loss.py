@@ -13,7 +13,7 @@ class EmbeddingLoss(nn.Module):
     def __init__(self):
         super().__init__()
         self.encoder = get_model().to(const.DEVICE)
-        self.encoder.load_state_dict(torch.load(const.SAVE_MODEL_PATH / 'maskencoder.pt', map_location=const.DEVICE))
+        self.encoder.load_state_dict(torch.load(const.SAVE_MODEL_PATH / f'{const.S_MODEL_NAME}.pt', map_location=const.DEVICE))
         self.encoder.eval()
         self.means = Dataset().means(self.encoder)
 
@@ -36,7 +36,7 @@ class RadialLoss(nn.Module):
         self.kernel = torch.square(self.kernel)
 
     def forward(self, y_pred, y):
-        return torch.square(y_pred[:, torch.argmax(y, dim=1)] * self.kernel).mean()
+        return torch.square(y_pred.to(const.DEVICE)[:, torch.argmax(y, dim=1)] * self.kernel).mean()
 
 
 if __name__ == '__main__':

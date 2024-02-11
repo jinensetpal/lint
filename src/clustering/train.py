@@ -9,6 +9,10 @@ import torch
 import sys
 
 
+def get_model():
+    return nn.Sequential(nn.Flatten(), nn.LazyLinear(128), nn.Linear(128, 1))
+
+
 def fit(model, optimizer, loss, dataloader):
     if const.LOG_REMOTE: mlflow.set_tracking_uri(const.MLFLOW_TRACKING_URI)
     with mlflow.start_run():
@@ -54,7 +58,7 @@ if __name__ == '__main__':
     dataloader = torch.utils.data.DataLoader(Dataset(),
                                              batch_size=const.S_BATCH_SIZE,
                                              shuffle=True)
-    model = nn.Sequential(nn.Flatten(), nn.LazyLinear(128), nn.Linear(128, 1)).to(const.DEVICE)
+    model = get_model().to(const.DEVICE)
     optimizer = torch.optim.Adam(model.parameters(),
                                  lr=const.S_LEARNING_RATE)
     loss = TripletLoss(const.S_ALPHA).to(const.DEVICE)

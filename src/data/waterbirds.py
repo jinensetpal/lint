@@ -19,6 +19,11 @@ class Dataset(torch.utils.data.Dataset):
             self.split = 'all'
 
         self.state = state
+        self.reweight = self._reweight()
+
+    def _reweight(self):
+        p = self.df['y'].sum() / len(self.df)
+        return [.5 / (1 - p), .5 / p]
 
     def __len__(self):
         return len(self.df)
