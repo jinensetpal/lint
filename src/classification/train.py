@@ -85,6 +85,6 @@ if __name__ == '__main__':
                                 lr=const.LEARNING_RATE,
                                 momentum=const.MOMENTUM)
     losses = [torch.nn.CrossEntropyLoss(),
-              EmbeddingLoss() if const.USE_SIAMESE_LOSS else RadialLoss(model.penultimate.shape[-2:])]
+              EmbeddingLoss() if const.USE_SIAMESE_LOSS else RadialLoss()]
     fit(model, optimizer, losses, train, val)
     torch.save(model.state_dict(), const.SAVE_MODEL_PATH / f'{const.MODEL_NAME}.pt')
