@@ -84,7 +84,7 @@ if __name__ == '__main__':
     optimizer = torch.optim.SGD(model.parameters(),
                                 lr=const.LEARNING_RATE,
                                 momentum=const.MOMENTUM)
-    losses = [torch.nn.CrossEntropyLoss(weight=torch.tensor(train.dataset.reweight)),
+    losses = [torch.nn.CrossEntropyLoss(weight=torch.tensor(train.dataset.reweight).to(const.DEVICE)),
               EmbeddingLoss() if const.USE_SIAMESE_LOSS else RadialLoss()]
     fit(model, optimizer, losses, train, val)
     torch.save(model.state_dict(), const.SAVE_MODEL_PATH / f'{const.MODEL_NAME}.pt')

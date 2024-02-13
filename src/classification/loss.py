@@ -23,7 +23,7 @@ class EmbeddingLoss(nn.Module):
     def forward(self, positive, y):
         positive = torch.tensor(np.array([(self.sigmoid(mask[label]) > .5).cpu().detach().numpy() for (mask, label) in zip(positive, torch.argmax(y, dim=1))])).unsqueeze(1).to(const.DEVICE)
         with torch.no_grad():
-            d_pos = (self.encoder(self.sigmoid(positive).repeat(1, 3, 1, 1)) - self.means[0]).pow(2).sum(1)
+            d_pos = (self.encoder(self.sigmoid(positive)) - self.means[0]).pow(2).sum(1)
 
         return nn.functional.relu(d_pos - self.d_neg).mean().item()
 

@@ -39,9 +39,9 @@ class Dataset(torch.utils.data.Dataset):
 
 
 def get_generators(state='training'):
-    return [torch.utils.data.DataLoader(Dataset(const.DATA_DIR / 'metadata.csv', split=split, state=state),
+    return [torch.utils.data.DataLoader(Dataset(const.DATA_DIR / 'waterbirds' / 'metadata.csv', split=split, state=state),
                                         batch_size=const.BATCH_SIZE, shuffle=True) for split in const.ENCODINGS['split']]
 
 
 if __name__ == '__main__':
-    print(Dataset(const.DATA_DIR / 'metadata.csv')[0])
+    print(Dataset(const.DATA_DIR / 'waterbirds' / 'metadata.csv')[0])

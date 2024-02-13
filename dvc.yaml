@@ -1,0 +1,31 @@
+stages:
+  tripletloss:
+    cmd: python -m src.clustering.train
+    deps:
+    - data/annotations/
+    - src/clustering/loss.py
+    - src/clustering/train.py
+    - src/const.py
+    - src/data/siamese.py
+    outs:
+    - models/clustering.pt
+  train:
+    cmd: python -m src.clustering.train
+    deps:
+    - data/waterbirds/
+    - models/clustering.pt
+    - src/classification/arch.py
+    - src/classification/loss.py
+    - src/classification/train.py
+    - src/const.py
+    - src/data/waterbirds.py
+    outs:
+    - models/default.pt
+  evaluate:
+    cmd: python -m src.classification.evaluate
+    deps:
+    - data/waterbirds/
+    - models/default.pt
+    - src/classification/evaluate.py
+    - src/const.py
+    - src/data/waterbirds.py

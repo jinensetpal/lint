@@ -60,4 +60,4 @@ if __name__ == '__main__':
 
     if sys.argv[1] == 'group':
         for gen in get_generators(state='evaluation'): print(gen.dataset.split, group_accuracy(model, gen))
-    else: visualize(model, Dataset(const.DATA_DIR / 'metadata.csv', split='test'))
+    else: visualize(model, Dataset(const.DATA_DIR / 'waterbirds' /'metadata.csv', split='test'))
