@@ -76,7 +76,10 @@ def fit(model, optimizer, losses, train, val):
 
 
 if __name__ == '__main__':
-    const.MODEL_NAME = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
+    if len(sys.argv) > 1:
+        const.MODEL_NAME = sys.argv[1]
+        if const.MODEL_NAME == 'default': const.LOSS_WEIGHTS[1] = 0
+
     train, val, test = get_generators()
 
     model = Model(const.IMAGE_SHAPE).to(const.DEVICE)

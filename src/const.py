@@ -11,14 +11,14 @@ SAVE_MODEL_PATH = BASE_DIR / 'models'
 ANNOTATIONS_PATH = DATA_DIR / 'annotations' / 'result.json'
 
 # training
-MODEL_NAME = 'default'
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 LEARNING_RATE = 1E-3
 BATCH_SIZE = 64
 MOMENTUM = 0.9
 EPOCHS = 20
 USE_SIAMESE_LOSS = True
-LOSS_WEIGHTS = [1, 1]  # CSE, CAM
+LOSS_WEIGHTS = [1, 0]  # CSE, CAM
+MODEL_NAME = 'multiloss' if LOSS_WEIGHTS[1] else 'default'
 
 # siamese
 S_ALPHA = 20  # for triplet loss

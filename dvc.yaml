@@ -9,23 +9,66 @@ stages:
     - src/data/siamese.py
     outs:
     - models/clustering.pt
-  train:
-    cmd: python -m src.clustering.train
+  default-train:
+    cmd: python -m src.classification.train default
     deps:
     - data/waterbirds/
-    - models/clustering.pt
+    - src/const.py
+    - src/data/waterbirds.py
     - src/classification/arch.py
     - src/classification/loss.py
     - src/classification/train.py
-    - src/const.py
-    - src/data/waterbirds.py
     outs:
     - models/default.pt
-  evaluate:
-    cmd: python -m src.classification.evaluate
+  multiloss-train:
+    cmd: python -m src.classification.train multiloss
+    deps:
+    - data/waterbirds/
+    - models/clustering.pt
+    - src/const.py
+    - src/data/waterbirds.py
+    - src/classification/arch.py
+    - src/classification/loss.py
+    - src/classification/train.py
+    outs:
+    - models/multiloss.pt
+  default-visualize:
+    cmd: python -m src.classification.evaluate visualize default
     deps:
     - data/waterbirds/
     - models/default.pt
-    - src/classification/evaluate.py
     - src/const.py
     - src/data/waterbirds.py
+    - src/classification/evaluate.py
+    outs:
+    - data/evals/default.png
+  default-group:
+    cmd: python -m src.classification.evaluate group default
+    deps:
+    - data/waterbirds/
+    - models/default.pt
+    - src/const.py
+    - src/data/waterbirds.py
+    - src/classification/evaluate.py
+    outs:
+    - data/evals/default.txt
+  multiloss-visualize:
+    cmd: python -m src.classification.evaluate visualize multiloss
+    deps:
+    - data/waterbirds/
+    - models/multiloss.pt
+    - src/const.py
+    - src/data/waterbirds.py
+    - src/classification/evaluate.py
+    outs:
+    - data/evals/multiloss.png
+  multiloss-group:
+    cmd: python -m src.classification.evaluate group multiloss
+    deps:
+    - data/waterbirds/
+    - models/multiloss.pt
+    - src/const.py
+    - src/data/waterbirds.py
+    - src/classification/evaluate.py
+    outs:
+    - data/evals/multiloss.txt

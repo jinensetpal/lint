@@ -9,6 +9,7 @@ import torch
 class Model(torch.nn.Module):
     def __init__(self, input_shape):
         super().__init__()
+        self.name = const.MODEL_NAME
 
         self.backbone = torchvision.models.resnet50(weights=None)
         self.backbone.fc = nn.Identity()

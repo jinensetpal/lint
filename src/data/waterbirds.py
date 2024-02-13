@@ -29,7 +29,7 @@ class Dataset(torch.utils.data.Dataset):
         return len(self.df)
 
     def __getitem__(self, idx):
-        X = torchvision.transforms.functional.resize(torchvision.io.read_image((const.DATA_DIR / self.df['img_filename'].iloc[idx]).as_posix()), const.IMAGE_SIZE, antialias=True)
+        X = torchvision.transforms.functional.resize(torchvision.io.read_image((const.DATA_DIR / 'waterbirds' / self.df['img_filename'].iloc[idx]).as_posix()), const.IMAGE_SIZE, antialias=True)
         X = X / 255  # normalization
         y = torch.zeros((const.N_CLASSES))
         y[self.df['y'][idx]] = 1

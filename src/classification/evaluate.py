@@ -48,7 +48,7 @@ def visualize(model, gen):
 
     plt.tight_layout()
     plt.show()
-    fig.savefig(const.DATA_DIR / 'cams.png')
+    fig.savefig(const.DATA_DIR / 'evals' / f'{model.name}.png')
 
 
 if __name__ == '__main__':
@@ -59,5 +59,6 @@ if __name__ == '__main__':
     model.eval()
 
     if sys.argv[1] == 'group':
-        for gen in get_generators(state='evaluation'): print(gen.dataset.split, group_accuracy(model, gen))
-    else: visualize(model, Dataset(const.DATA_DIR / 'waterbirds' /'metadata.csv', split='test'))
+        with open(const.DATA_DIR / 'evals' / f'{model.name}.txt', 'w') as f:
+            for gen in get_generators(state='evaluation'): f.write(gen.dataset.split + ': ' + str(group_accuracy(model, gen)) + '\n')
+    else: visualize(model, Dataset(const.DATA_DIR / 'waterbirds' / 'metadata.csv', split='test'))
