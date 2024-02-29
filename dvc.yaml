@@ -1,74 +1,74 @@
 stages:
   tripletloss:
-    cmd: python -m src.clustering.train
+    cmd: python -m src.auxilliary.train
     deps:
     - data/annotations/
-    - src/clustering/loss.py
-    - src/clustering/train.py
+    - src/auxilliary/loss.py
+    - src/auxilliary/train.py
     - src/const.py
     - src/data/siamese.py
     outs:
     - models/clustering.pt
   default-train:
-    cmd: python -m src.classification.train default
+    cmd: python -m src.model.train default
     deps:
     - data/waterbirds/
     - src/const.py
     - src/data/waterbirds.py
-    - src/classification/arch.py
-    - src/classification/loss.py
-    - src/classification/train.py
+    - src/model/arch.py
+    - src/model/loss.py
+    - src/model/train.py
     outs:
     - models/default.pt
   multiloss-train:
-    cmd: python -m src.classification.train multiloss
+    cmd: python -m src.model.train multiloss
     deps:
     - data/waterbirds/
     - models/clustering.pt
     - src/const.py
     - src/data/waterbirds.py
-    - src/classification/arch.py
-    - src/classification/loss.py
-    - src/classification/train.py
+    - src/model/arch.py
+    - src/model/loss.py
+    - src/model/train.py
     outs:
     - models/multiloss.pt
   default-visualize:
-    cmd: python -m src.classification.evaluate visualize default
+    cmd: python -m src.model.evaluate visualize default
     deps:
     - data/waterbirds/
     - models/default.pt
     - src/const.py
     - src/data/waterbirds.py
-    - src/classification/evaluate.py
+    - src/model/evaluate.py
     outs:
     - data/evals/default.png
   default-group:
-    cmd: python -m src.classification.evaluate group default
+    cmd: python -m src.model.evaluate group default
     deps:
     - data/waterbirds/
     - models/default.pt
     - src/const.py
     - src/data/waterbirds.py
-    - src/classification/evaluate.py
+    - src/model/evaluate.py
     outs:
     - data/evals/default.txt
   multiloss-visualize:
-    cmd: python -m src.classification.evaluate visualize multiloss
+    cmd: python -m src.model.evaluate visualize multiloss
     deps:
     - data/waterbirds/
     - models/multiloss.pt
     - src/const.py
     - src/data/waterbirds.py
-    - src/classification/evaluate.py
+    - src/model/evaluate.py
     outs:
     - data/evals/multiloss.png
   multiloss-group:
-    cmd: python -m src.classification.evaluate group multiloss
+    cmd: python -m src.model.evaluate group multiloss
     deps:
     - data/waterbirds/
     - models/multiloss.pt
     - src/const.py
     - src/data/waterbirds.py
-    - src/classification/evaluate.py
+    - src/model/evaluate.py
     outs:
     - data/evals/multiloss.txt

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from astropy.convolution import Gaussian2DKernel
-from ..clustering.train import get_model
+from ..auxilliary.train import get_model
 from ..data.siamese import Dataset
 import torch.nn as nn
 from src import const

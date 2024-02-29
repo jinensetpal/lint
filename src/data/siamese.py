@@ -15,17 +15,22 @@ class Dataset(torch.utils.data.Dataset):
         self.masks = torch.tensor(np.array(list(map(lambda x: resize(resize(coco.annToMask(x), const.IMAGE_SIZE), const.CAM_SIZE),
                                                     coco.loadAnns(range(len(coco.imgs))))))).to(torch.float)
         self.inv_masks = torch.abs(self.masks - 1)
-        self.order = [(*combination, neg) for neg in range(self.masks.shape[0]) for combination in list(permutations(range(self.masks.shape[0]), 2))]
+        if const.TRIPLET: self.order = [(*combination, neg) for neg in range(self.masks.shape[0]) for combination in list(permutations(range(self.masks.shape[0]), 2))]
 
     def __len__(self):
-        return len(self.order) * 2
+        return len(self.order) * 2 if const.TRIPLET else len(self.masks) * 2
 
     # returns anchor, positive, negative
     def __getitem__(self, idx):
-        if idx > len(self) / 2:
+        if idx >= len(self) / 2:
+            if not const.TRIPLET: return (self.inv_masks[idx % 2], torch.tensor([0.,]))
+
             # inverse masks
             idx = self.order[idx % 2]
             return (self.inv_masks[idx[0]], self.inv_masks[idx[1]], self.masks[idx[2]])
+
+        if not const.TRIPLET: return (self.masks[idx], torch.tensor([1.,]))
+
         # regular masks
         idx = self.order[idx % 2]
         return (self.masks[idx[0]], self.masks[idx[1]], self.inv_masks[idx[2]])
@@ -36,4 +41,4 @@ class Dataset(torch.utils.data.Dataset):
 
 if __name__ == '__main__':
     dataset = Dataset()
-    print(dataset[0])
+    print([x.shape for x in dataset[0]])

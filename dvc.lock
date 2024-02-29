@@ -1,69 +1,69 @@
 schema: '2.0'
 stages:
   tripletloss:
-    cmd: python -m src.clustering.train
+    cmd: python -m src.auxilliary.train
     deps:
     - path: data/annotations/
       hash: md5
       md5: 3d83dbeb25cfaaacd791caf6a0462b40.dir
       size: 215163
       nfiles: 6
-    - path: src/clustering/loss.py
+    - path: src/auxilliary/loss.py
       hash: md5
       md5: 7fbc29b62b2dc8a879dde20a3b49eddd
       size: 545
-    - path: src/clustering/train.py
+    - path: src/auxilliary/train.py
       hash: md5
-      md5: b8b736ff5df24c3b50a34e487b76b2f5
-      size: 2675
+      md5: da22428777c172920f4ae83e04aa4af1
+      size: 3019
     - path: src/const.py
       hash: md5
-      md5: 78f532f3ad59a8140ed4549186ae2c37
-      size: 1034
+      md5: ade7b702fe957ce73ed67cb910e899e2
+      size: 1050
     - path: src/data/siamese.py
       hash: md5
-      md5: 526de603921688016873fd39323b4e7a
-      size: 1422
+      md5: 938d75ebec30eaa7a2c7c7e068534829
+      size: 1669
     outs:
     - path: models/clustering.pt
       hash: md5
-      md5: 38d073ba5bf4cfce2577b32398069aae
-      size: 28264
+      md5: 5302fa522dfce5d38800405f28c789d0
+      size: 1770
   default-train:
-    cmd: python -m src.classification.train default
+    cmd: python -m src.model.train default
     deps:
     - path: data/waterbirds/
       hash: md5
       md5: 37b8a1f7249ecb1a68d5f39206d888fe.dir
       size: 492707912
       nfiles: 11789
-    - path: src/classification/arch.py
-      hash: md5
-      md5: 2db21f3d88588182cef9d5bc95a39f0a
-      size: 1586
-    - path: src/classification/loss.py
-      hash: md5
-      md5: 2793c684d72774f7fd711bff6dd1076c
-      size: 1735
-    - path: src/classification/train.py
-      hash: md5
-      md5: 54cf05739541106bcbc8abe8ac4e4ede
-      size: 4258
     - path: src/const.py
       hash: md5
-      md5: 78f532f3ad59a8140ed4549186ae2c37
-      size: 1034
+      md5: ade7b702fe957ce73ed67cb910e899e2
+      size: 1050
     - path: src/data/waterbirds.py
       hash: md5
       md5: d42d818f9eb488ae785aa632b70dd5c2
       size: 1565
+    - path: src/model/arch.py
+      hash: md5
+      md5: 9caefc67dee47530722910c5ceaeaac0
+      size: 1585
+    - path: src/model/loss.py
+      hash: md5
+      md5: e82d0347a7060d55e58ccbd16268f359
+      size: 1735
+    - path: src/model/train.py
+      hash: md5
+      md5: 54cf05739541106bcbc8abe8ac4e4ede
+      size: 4258
     outs:
     - path: models/default.pt
       hash: md5
-      md5: b4f37ad66b1492c1b9cdde46da541953
+      md5: 4dd6737d6e3107b1c1dc78fd5188ac92
       size: 94370034
   multiloss-train:
-    cmd: python -m src.classification.train multiloss
+    cmd: python -m src.model.train multiloss
     deps:
     - path: data/waterbirds/
       hash: md5
@@ -72,35 +72,35 @@ stages:
       nfiles: 11789
     - path: models/clustering.pt
       hash: md5
-      md5: 38d073ba5bf4cfce2577b32398069aae
-      size: 28264
-    - path: src/classification/arch.py
-      hash: md5
-      md5: 2db21f3d88588182cef9d5bc95a39f0a
-      size: 1586
-    - path: src/classification/loss.py
-      hash: md5
-      md5: 2793c684d72774f7fd711bff6dd1076c
-      size: 1735
-    - path: src/classification/train.py
-      hash: md5
-      md5: 54cf05739541106bcbc8abe8ac4e4ede
-      size: 4258
+      md5: 5302fa522dfce5d38800405f28c789d0
+      size: 1770
     - path: src/const.py
       hash: md5
-      md5: 78f532f3ad59a8140ed4549186ae2c37
-      size: 1034
+      md5: ade7b702fe957ce73ed67cb910e899e2
+      size: 1050
     - path: src/data/waterbirds.py
       hash: md5
       md5: d42d818f9eb488ae785aa632b70dd5c2
       size: 1565
+    - path: src/model/arch.py
+      hash: md5
+      md5: 9caefc67dee47530722910c5ceaeaac0
+      size: 1585
+    - path: src/model/loss.py
+      hash: md5
+      md5: e82d0347a7060d55e58ccbd16268f359
+      size: 1735
+    - path: src/model/train.py
+      hash: md5
+      md5: 54cf05739541106bcbc8abe8ac4e4ede
+      size: 4258
     outs:
     - path: models/multiloss.pt
       hash: md5
-      md5: d41d8cd98f00b204e9800998ecf8427e
-      size: 0
+      md5: 8c2d41458b6ae2e86dd896c673f1548f
+      size: 94371066
   default-visualize:
-    cmd: python -m src.classification.evaluate visualize default
+    cmd: python -m src.model.evaluate visualize default
     deps:
     - path: data/waterbirds/
       hash: md5
@@ -109,27 +109,27 @@ stages:
       nfiles: 11789
     - path: models/default.pt
       hash: md5
-      md5: b4f37ad66b1492c1b9cdde46da541953
+      md5: 4dd6737d6e3107b1c1dc78fd5188ac92
       size: 94370034
-    - path: src/classification/evaluate.py
-      hash: md5
-      md5: 0c7abca8e11826e8904d15590b27d62c
-      size: 2474
     - path: src/const.py
       hash: md5
-      md5: 78f532f3ad59a8140ed4549186ae2c37
-      size: 1034
+      md5: ade7b702fe957ce73ed67cb910e899e2
+      size: 1050
     - path: src/data/waterbirds.py
       hash: md5
       md5: d42d818f9eb488ae785aa632b70dd5c2
       size: 1565
+    - path: src/model/evaluate.py
+      hash: md5
+      md5: 18c521d88d61caf729ebcb5e4258f4e2
+      size: 2496
     outs:
     - path: data/evals/default.png
       hash: md5
-      md5: 997a34f45f2ad41158fae40e6b2a33bb
-      size: 1679507
+      md5: 5bcacf197e9328e34da71cfe4ffadd23
+      size: 1803705
   default-group:
-    cmd: python -m src.classification.evaluate group default
+    cmd: python -m src.model.evaluate group default
     deps:
     - path: data/waterbirds/
       hash: md5
@@ -138,27 +138,27 @@ stages:
       nfiles: 11789
     - path: models/default.pt
       hash: md5
-      md5: b4f37ad66b1492c1b9cdde46da541953
+      md5: 4dd6737d6e3107b1c1dc78fd5188ac92
       size: 94370034
-    - path: src/classification/evaluate.py
-      hash: md5
-      md5: 0c7abca8e11826e8904d15590b27d62c
-      size: 2474
     - path: src/const.py
       hash: md5
-      md5: 78f532f3ad59a8140ed4549186ae2c37
-      size: 1034
+      md5: ade7b702fe957ce73ed67cb910e899e2
+      size: 1050
     - path: src/data/waterbirds.py
       hash: md5
       md5: d42d818f9eb488ae785aa632b70dd5c2
       size: 1565
+    - path: src/model/evaluate.py
+      hash: md5
+      md5: 18c521d88d61caf729ebcb5e4258f4e2
+      size: 2496
     outs:
     - path: data/evals/default.txt
       hash: md5
-      md5: bab7767253a6280546a559010f59d47c
-      size: 29
+      md5: a88f202a699e63df8d9a3c3cb2dbb8ba
+      size: 453
   multiloss-visualize:
-    cmd: python -m src.classification.evaluate visualize multiloss
+    cmd: python -m src.model.evaluate visualize multiloss
     deps:
     - path: data/waterbirds/
       hash: md5
@@ -167,27 +167,27 @@ stages:
       nfiles: 11789
     - path: models/multiloss.pt
       hash: md5
-      md5: d41d8cd98f00b204e9800998ecf8427e
-      size: 0
-    - path: src/classification/evaluate.py
-      hash: md5
-      md5: 0c7abca8e11826e8904d15590b27d62c
-      size: 2474
+      md5: 8c2d41458b6ae2e86dd896c673f1548f
+      size: 94371066
     - path: src/const.py
       hash: md5
-      md5: 78f532f3ad59a8140ed4549186ae2c37
-      size: 1034
+      md5: ade7b702fe957ce73ed67cb910e899e2
+      size: 1050
     - path: src/data/waterbirds.py
       hash: md5
       md5: d42d818f9eb488ae785aa632b70dd5c2
       size: 1565
+    - path: src/model/evaluate.py
+      hash: md5
+      md5: 18c521d88d61caf729ebcb5e4258f4e2
+      size: 2496
     outs:
     - path: data/evals/multiloss.png
       hash: md5
-      md5: d41d8cd98f00b204e9800998ecf8427e
-      size: 0
+      md5: a7780933102ee93f257a78381d051953
+      size: 1616640
   multiloss-group:
-    cmd: python -m src.classification.evaluate group multiloss
+    cmd: python -m src.model.evaluate group multiloss
     deps:
     - path: data/waterbirds/
       hash: md5
@@ -196,22 +196,22 @@ stages:
       nfiles: 11789
     - path: models/multiloss.pt
       hash: md5
-      md5: d41d8cd98f00b204e9800998ecf8427e
-      size: 0
-    - path: src/classification/evaluate.py
-      hash: md5
-      md5: 0c7abca8e11826e8904d15590b27d62c
-      size: 2474
+      md5: 8c2d41458b6ae2e86dd896c673f1548f
+      size: 94371066
     - path: src/const.py
       hash: md5
-      md5: 78f532f3ad59a8140ed4549186ae2c37
-      size: 1034
+      md5: ade7b702fe957ce73ed67cb910e899e2
+      size: 1050
     - path: src/data/waterbirds.py
       hash: md5
       md5: d42d818f9eb488ae785aa632b70dd5c2
       size: 1565
+    - path: src/model/evaluate.py
+      hash: md5
+      md5: 18c521d88d61caf729ebcb5e4258f4e2
+      size: 2496
     outs:
     - path: data/evals/multiloss.txt
       hash: md5
-      md5: d41d8cd98f00b204e9800998ecf8427e
-      size: 0
+      md5: fb17a9349183a88a8d7ff855f973df07
+      size: 456

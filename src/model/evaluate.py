@@ -56,6 +56,7 @@ if __name__ == '__main__':
 
     model = Model(input_shape=const.IMAGE_SHAPE).to(const.DEVICE)
     model.load_state_dict(torch.load(const.SAVE_MODEL_PATH / f'{name}.pt', map_location=const.DEVICE))
+    model.name = name
     model.eval()
 
     if sys.argv[1] == 'group':

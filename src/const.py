@@ -21,12 +21,13 @@ LOSS_WEIGHTS = [1, 0]  # CSE, CAM
 MODEL_NAME = 'multiloss' if LOSS_WEIGHTS[1] else 'default'
 
 # siamese
+TRIPLET = False
 S_ALPHA = 20  # for triplet loss
 S_L1_ALPHA = 1E-3
 S_EPOCHS = 100
 S_BATCH_SIZE = 128
 CAM_SIZE = (7, 7)
-S_LEARNING_RATE = 5E-5
+S_LEARNING_RATE = 2E-3
 S_MODEL_NAME = 'clustering'
 
 # dataset

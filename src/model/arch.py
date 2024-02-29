@@ -9,15 +9,12 @@ import torch
 class Model(torch.nn.Module):
     def __init__(self, input_shape):
         super().__init__()
-        self.name = const.MODEL_NAME
-
         self.backbone = torchvision.models.resnet50(weights=None)
         self.backbone.fc = nn.Identity()
+        self.backbone.layer4[-1].conv3.register_forward_hook(self._hook)
 
         self.feature_grad = None
         self.feature_rect = None
-
-        self.backbone.layer4[-1].conv3.register_forward_hook(self._hook)
 
         self.linear = nn.LazyLinear(2)
         self.softmax = nn.Softmax(dim=1)  # ~equivalent to sigmoid since classes = 2; relevant for CAMs
