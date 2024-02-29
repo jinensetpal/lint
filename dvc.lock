@@ -18,7 +18,7 @@ stages:
       size: 3019
     - path: src/const.py
       hash: md5
-      md5: ade7b702fe957ce73ed67cb910e899e2
+      md5: 0dc1087835f80af9ba088006edbef8fe
       size: 1050
     - path: src/data/siamese.py
       hash: md5
@@ -39,7 +39,7 @@ stages:
       nfiles: 11789
     - path: src/const.py
       hash: md5
-      md5: ade7b702fe957ce73ed67cb910e899e2
+      md5: 0dc1087835f80af9ba088006edbef8fe
       size: 1050
     - path: src/data/waterbirds.py
       hash: md5
@@ -47,8 +47,8 @@ stages:
       size: 1565
     - path: src/model/arch.py
       hash: md5
-      md5: 9caefc67dee47530722910c5ceaeaac0
-      size: 1585
+      md5: fe05d2de689b35ded9968479a32a8381
+      size: 1547
     - path: src/model/loss.py
       hash: md5
       md5: e82d0347a7060d55e58ccbd16268f359
@@ -76,7 +76,7 @@ stages:
       size: 1770
     - path: src/const.py
       hash: md5
-      md5: ade7b702fe957ce73ed67cb910e899e2
+      md5: 0dc1087835f80af9ba088006edbef8fe
       size: 1050
     - path: src/data/waterbirds.py
       hash: md5
@@ -84,8 +84,8 @@ stages:
       size: 1565
     - path: src/model/arch.py
       hash: md5
-      md5: 9caefc67dee47530722910c5ceaeaac0
-      size: 1585
+      md5: fe05d2de689b35ded9968479a32a8381
+      size: 1547
     - path: src/model/loss.py
       hash: md5
       md5: e82d0347a7060d55e58ccbd16268f359
@@ -113,7 +113,7 @@ stages:
       size: 94370034
     - path: src/const.py
       hash: md5
-      md5: ade7b702fe957ce73ed67cb910e899e2
+      md5: 0dc1087835f80af9ba088006edbef8fe
       size: 1050
     - path: src/data/waterbirds.py
       hash: md5
@@ -121,13 +121,13 @@ stages:
       size: 1565
     - path: src/model/evaluate.py
       hash: md5
-      md5: 18c521d88d61caf729ebcb5e4258f4e2
-      size: 2496
+      md5: e13ac222e7a952618da665ec30ce4725
+      size: 2509
     outs:
     - path: data/evals/default.png
       hash: md5
-      md5: 5bcacf197e9328e34da71cfe4ffadd23
-      size: 1803705
+      md5: d27d77fedd06f61cce339a700610a7a5
+      size: 1085712
   default-group:
     cmd: python -m src.model.evaluate group default
     deps:
@@ -142,7 +142,7 @@ stages:
       size: 94370034
     - path: src/const.py
       hash: md5
-      md5: ade7b702fe957ce73ed67cb910e899e2
+      md5: 0dc1087835f80af9ba088006edbef8fe
       size: 1050
     - path: src/data/waterbirds.py
       hash: md5
@@ -150,8 +150,8 @@ stages:
       size: 1565
     - path: src/model/evaluate.py
       hash: md5
-      md5: 18c521d88d61caf729ebcb5e4258f4e2
-      size: 2496
+      md5: e13ac222e7a952618da665ec30ce4725
+      size: 2509
     outs:
     - path: data/evals/default.txt
       hash: md5
@@ -171,7 +171,7 @@ stages:
       size: 94371066
     - path: src/const.py
       hash: md5
-      md5: ade7b702fe957ce73ed67cb910e899e2
+      md5: 0dc1087835f80af9ba088006edbef8fe
       size: 1050
     - path: src/data/waterbirds.py
       hash: md5
@@ -179,13 +179,13 @@ stages:
       size: 1565
     - path: src/model/evaluate.py
       hash: md5
-      md5: 18c521d88d61caf729ebcb5e4258f4e2
-      size: 2496
+      md5: e13ac222e7a952618da665ec30ce4725
+      size: 2509
     outs:
     - path: data/evals/multiloss.png
       hash: md5
-      md5: a7780933102ee93f257a78381d051953
-      size: 1616640
+      md5: aa602fab7c5cf4bc6c7fbfc2987d40fc
+      size: 1136576
   multiloss-group:
     cmd: python -m src.model.evaluate group multiloss
     deps:
@@ -200,7 +200,7 @@ stages:
       size: 94371066
     - path: src/const.py
       hash: md5
-      md5: ade7b702fe957ce73ed67cb910e899e2
+      md5: 0dc1087835f80af9ba088006edbef8fe
       size: 1050
     - path: src/data/waterbirds.py
       hash: md5
@@ -208,8 +208,8 @@ stages:
       size: 1565
     - path: src/model/evaluate.py
       hash: md5
-      md5: 18c521d88d61caf729ebcb5e4258f4e2
-      size: 2496
+      md5: e13ac222e7a952618da665ec30ce4725
+      size: 2509
     outs:
     - path: data/evals/multiloss.txt
       hash: md5
