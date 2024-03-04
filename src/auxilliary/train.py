@@ -60,7 +60,7 @@ def fit(model, optimizer, loss, dataloader):
 
 
 if __name__ == '__main__':
-    const.MODEL_NAME = sys.argv[1] if len(sys.argv) > 1 else const.MODEL_NAME
+    const.S_MODEL_NAME = sys.argv[1] if len(sys.argv) > 1 else const.S_MODEL_NAME
 
     dataloader = torch.utils.data.DataLoader(Dataset(),
                                              batch_size=const.S_BATCH_SIZE,

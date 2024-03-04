@@ -10,7 +10,6 @@ source activate lint
 
 cd ~/git/lint
 
-MLFLOW_TRACKING_URI=https://dagshub.com/jinensetpal/lint.mlflow \
 MLFLOW_TRACKING_USERNAME=jinensetpal \
 MLFLOW_TRACKING_PASSWORD=$MLFLOW_TOKEN \
-python -m src.classification.train $MODEL_NAME
+dvc repro -f

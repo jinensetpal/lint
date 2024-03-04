@@ -1,5 +1,5 @@
 ['remote "origin"']
     url = s3://dvc
     endpointurl = https://dagshub.com/jinensetpal/lint.s3
-['remote "public"']
+['remote "http"']
     url = https://dagshub.com/jinensetpal/lint.dvc

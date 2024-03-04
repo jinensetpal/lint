@@ -71,7 +71,9 @@ def fit(model, optimizer, losses, train, val):
             if not (epoch+1) % interval:
                 print(f'epoch\t\t\t: {epoch+1}')
                 for key in metrics: print(f'{key}\t\t: {metrics[key]}')
-        mlflow.log_param('selected_epoch', best['epoch'])
+        if const.SELECT_BEST:
+            mlflow.log_param('selected_epoch', best['epoch'])
+            model.load_state_dict(best['param'])
         print('-' * 10)
 
 

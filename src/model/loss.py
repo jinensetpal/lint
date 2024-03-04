@@ -31,7 +31,7 @@ class EmbeddingLoss(nn.Module):
 class RadialLoss(nn.Module):
     def __init__(self):
         super().__init__()
-        self.kernel = torch.tensor(np.array(Gaussian2DKernel(const.IMAGE_SIZE[0] * .01, x_size=const.CAM_SIZE[0], y_size=const.CAM_SIZE[1]))).to(const.DEVICE)
+        self.kernel = torch.tensor(np.array(Gaussian2DKernel(const.IMAGE_SIZE[0] * .05, x_size=const.CAM_SIZE[0], y_size=const.CAM_SIZE[1]))).to(const.DEVICE)
         self.kernel -= self.kernel.max()
         self.kernel = torch.square(self.kernel)
 

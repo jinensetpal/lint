@@ -1,6 +1,6 @@
 stages:
   tripletloss:
-    cmd: python -m src.auxilliary.train
+    cmd: python -m src.auxilliary.train clustering
     deps:
     - data/annotations/
     - src/auxilliary/loss.py

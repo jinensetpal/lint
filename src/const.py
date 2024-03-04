@@ -13,17 +13,18 @@ ANNOTATIONS_PATH = DATA_DIR / 'annotations' / 'result.json'
 # training
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 LEARNING_RATE = 1E-3
+SELECT_BEST = True
 BATCH_SIZE = 64
 MOMENTUM = 0.9
 EPOCHS = 20
-USE_SIAMESE_LOSS = True
-LOSS_WEIGHTS = [1, 0]  # CSE, CAM
+USE_SIAMESE_LOSS = False
+LOSS_WEIGHTS = [1, 1] if USE_SIAMESE_LOSS else [1, 1E+18] # CSE, CAM
 MODEL_NAME = 'multiloss' if LOSS_WEIGHTS[1] else 'default'
 
 # siamese
 TRIPLET = False
 S_ALPHA = 20  # for triplet loss
-S_L1_ALPHA = 1E-3
+S_L1_ALPHA = 5E-1
 S_EPOCHS = 100
 S_BATCH_SIZE = 128
 CAM_SIZE = (7, 7)
