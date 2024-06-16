@@ -27,10 +27,9 @@ class Model(torch.nn.Module):
 
     def forward(self, x):
         x = self.backbone(x)
-        x = self.linear(x)
-        x = self.softmax(x)
+        logits = self.linear(x)
 
-        return x, self._compute_hi_res_cam(x)
+        return self.softmax(logits), self._compute_hi_res_cam(logits)
 
     def _compute_hi_res_cam(self, y):
         cams = torch.zeros(*y.shape, *self.feature_rect.shape[2:])
