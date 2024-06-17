@@ -5,8 +5,8 @@
 #SBATCH --constraint=V100_32GB
 #SBATCH --time=2:00:00
 
-module load cuda cudnn anaconda
-source activate lint
+source ~/.bashrc
+source load lint
 
 cd ~/git/lint
 
