@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
 
+from itertools import pairwise
 from src import const
 from torch import nn
-import torchvision
 import torch
 
 
 class Model(torch.nn.Module):
     def __init__(self, input_shape):
         super().__init__()
-        self.backbone = torchvision.models.resnet50(weights=None)
-        self.backbone.fc = nn.Identity()
-        self.backbone.layer4[-1].conv3.register_forward_hook(self._hook)
+
+        units = [3, 16, 64, 32]
+        self.convs = nn.ModuleList([nn.Conv2d(*features, 2, padding='same') for features in pairwise(units)])
+        self.convs[-1].register_forward_hook(self._hook)
+
+        self.batchnorms = [nn.BatchNorm2d(n_features) for n_features in units[1:]]
+        self.relu = nn.ReLU()
+        self.flatten = nn.Flatten()
 
         self.feature_grad = None
         self.feature_rect = None
@@ -26,7 +31,12 @@ class Model(torch.nn.Module):
         o.register_hook(assign)
 
     def forward(self, x):
-        x = self.backbone(x)
+        for conv, bn in zip(self.convs, self.batchnorms):
+            x = conv(x)
+            x = bn(x)
+            x = self.relu(x)
+        x = self.flatten(x)
+
         logits = self.linear(x)
 
         return self.softmax(logits), self._compute_hi_res_cam(logits)
@@ -35,7 +45,7 @@ class Model(torch.nn.Module):
         cams = torch.zeros(*y.shape, *self.feature_rect.shape[2:])
         for img_idx in range(y.shape[0]):
             for class_idx in range(y.shape[1]):
-                (y[img_idx, class_idx]).backward(retain_graph=True, inputs=self.feature_rect)
+                y[img_idx, class_idx].backward(retain_graph=True, inputs=self.feature_rect)
                 cams[img_idx, class_idx] = (self.feature_rect * self.feature_grad).sum(1)[img_idx]
         return cams
 

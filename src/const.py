@@ -18,7 +18,7 @@ BATCH_SIZE = 64
 MOMENTUM = 0.9
 EPOCHS = 20
 USE_SIAMESE_LOSS = False
-LOSS_WEIGHTS = [1, 1] if USE_SIAMESE_LOSS else [1, 1E+18] # CSE, CAM
+LOSS_WEIGHTS = [1, 1] if USE_SIAMESE_LOSS else [1, 1E+18]  # CSE, CAM
 MODEL_NAME = 'multiloss' if LOSS_WEIGHTS[1] else 'default'
 
 # siamese
