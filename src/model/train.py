@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     train, val, test = get_generators()
 
-    model = Model(const.IMAGE_SHAPE).to(const.DEVICE)
+    model = Model(const.IMAGE_SHAPE).to(const.DEVICE)  # initialize before loss functions to ensure accurate cam size configuration
 
     optimizer = torch.optim.SGD(model.parameters(),
                                 lr=const.LEARNING_RATE,

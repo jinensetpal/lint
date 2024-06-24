@@ -11,7 +11,8 @@ class Model(torch.nn.Module):
         super().__init__()
 
         units = [3, 16, 64, 32]
-        self.convs = nn.ModuleList([nn.Conv2d(*features, 2, padding='same') for features in pairwise(units)])
+        self.convs = nn.ModuleList([nn.Conv2d(*units[:2], 2, padding='same')] + 
+                                   [nn.Conv2d(*features, 2, 2) for features in pairwise(units[1:])])
         self.convs[-1].register_forward_hook(self._hook)
 
         self.batchnorms = [nn.BatchNorm2d(n_features, device=const.DEVICE) for n_features in units[1:]]
@@ -23,6 +24,9 @@ class Model(torch.nn.Module):
 
         self.linear = nn.LazyLinear(2)
         self.softmax = nn.Softmax(dim=1)  # ~equivalent to sigmoid since classes = 2; relevant for CAMs
+
+        self(torch.randn(1, *input_shape))  # initialization
+        const.CAM_SIZE = tuple(self.feature_rect.shape[2:])
 
     def _hook(self, model, i, o):
         def assign(grad):
@@ -38,7 +42,6 @@ class Model(torch.nn.Module):
         x = self.flatten(x)
 
         logits = self.linear(x)
-
         return self.softmax(logits), self._compute_hi_res_cam(logits)
 
     def _compute_hi_res_cam(self, y):
@@ -53,7 +56,6 @@ class Model(torch.nn.Module):
 if __name__ == '__main__':
     model = Model(input_shape=const.IMAGE_SHAPE).to(const.DEVICE)
     model.eval()
-    print(model)
 
     x = torch.rand((3, *const.IMAGE_SHAPE)).to(const.DEVICE)
     y, cam = model(x)

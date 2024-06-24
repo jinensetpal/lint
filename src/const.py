@@ -28,7 +28,6 @@ S_ALPHA = 20  # for triplet loss
 S_L1_ALPHA = 5E-1
 S_EPOCHS = 100
 S_BATCH_SIZE = 128
-CAM_SIZE = (224, 224)
 S_LEARNING_RATE = 2E-3
 S_MODEL_NAME = 'clustering'
 
