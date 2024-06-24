@@ -14,7 +14,7 @@ class Model(torch.nn.Module):
         self.convs = nn.ModuleList([nn.Conv2d(*features, 2, padding='same') for features in pairwise(units)])
         self.convs[-1].register_forward_hook(self._hook)
 
-        self.batchnorms = [nn.BatchNorm2d(n_features) for n_features in units[1:]]
+        self.batchnorms = [nn.BatchNorm2d(n_features, device=const.DEVICE) for n_features in units[1:]]
         self.relu = nn.ReLU()
         self.flatten = nn.Flatten()
 

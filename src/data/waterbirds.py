@@ -22,6 +22,7 @@ class Dataset(torch.utils.data.Dataset):
         self.reweight = self._reweight()
 
     def _reweight(self):
+        if not const.CORRECT_LABEL_SHIFT: return [.5, .5]
         p = self.df['y'].sum() / len(self.df)
         return [.5 / (1 - p), .5 / p]
 

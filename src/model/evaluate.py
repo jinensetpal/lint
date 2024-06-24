@@ -38,7 +38,7 @@ def visualize(model, gen):
     for idx, sample in enumerate(random.sample(range(len(gen)), 16)):
         X, y = gen[sample]
         y_pred, cam = model(X.unsqueeze(0).to(const.DEVICE))
-        cam = cam[0][y.argmax().item()].detach()
+        cam = cam[0][y.argmax().item()].detach().abs()
         cam -= cam.min()
         cam /= cam.max()
         fig.add_subplot(4, 4, idx + 1)

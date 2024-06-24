@@ -14,9 +14,10 @@ ANNOTATIONS_PATH = DATA_DIR / 'annotations' / 'result.json'
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 LEARNING_RATE = 1E-3
 SELECT_BEST = True
-BATCH_SIZE = 64
+BATCH_SIZE = 32
 MOMENTUM = 0.9
 EPOCHS = 20
+CORRECT_LABEL_SHIFT = False
 USE_SIAMESE_LOSS = False
 LOSS_WEIGHTS = [1, 1] if USE_SIAMESE_LOSS else [1, 1E+18]  # CSE, CAM
 MODEL_NAME = 'multiloss' if LOSS_WEIGHTS[1] else 'default'
@@ -27,7 +28,7 @@ S_ALPHA = 20  # for triplet loss
 S_L1_ALPHA = 5E-1
 S_EPOCHS = 100
 S_BATCH_SIZE = 128
-CAM_SIZE = (7, 7)
+CAM_SIZE = (224, 224)
 S_LEARNING_RATE = 2E-3
 S_MODEL_NAME = 'clustering'
 
@@ -42,4 +43,4 @@ IMAGE_SHAPE = (N_CHANNELS,) + IMAGE_SIZE
 
 # logging
 MLFLOW_TRACKING_URI = 'https://dagshub.com/jinensetpal/lint.mlflow'
-LOG_REMOTE = True
+LOG_REMOTE = False
