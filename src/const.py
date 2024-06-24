@@ -14,12 +14,12 @@ ANNOTATIONS_PATH = DATA_DIR / 'annotations' / 'result.json'
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 LEARNING_RATE = 1E-3
 SELECT_BEST = True
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 MOMENTUM = 0.9
 EPOCHS = 20
 CORRECT_LABEL_SHIFT = False
 USE_SIAMESE_LOSS = False
-LOSS_WEIGHTS = [1, 1] if USE_SIAMESE_LOSS else [1, 1E+18]  # CSE, CAM
+LOSS_WEIGHTS = [1, 1] if USE_SIAMESE_LOSS else [1, 1E+18]  # CSE, CAM respectively
 MODEL_NAME = 'multiloss' if LOSS_WEIGHTS[1] else 'default'
 
 # siamese

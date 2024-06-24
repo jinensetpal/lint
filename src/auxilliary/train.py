@@ -2,6 +2,7 @@
 
 from .loss import TripletLoss, l1_penalty
 from ..data.siamese import Dataset
+from ..model.arch import Model
 from .. import const
 from torch import nn
 import mlflow
@@ -62,6 +63,7 @@ def fit(model, optimizer, loss, dataloader):
 if __name__ == '__main__':
     const.S_MODEL_NAME = sys.argv[1] if len(sys.argv) > 1 else const.S_MODEL_NAME
 
+    Model(const.IMAGE_SHAPE)  # main model, to initialize CAM_SIZE
     dataloader = torch.utils.data.DataLoader(Dataset(),
                                              batch_size=const.S_BATCH_SIZE,
                                              shuffle=True)

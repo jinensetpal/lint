@@ -55,7 +55,7 @@ def visualize(model, gen):
 if __name__ == '__main__':
     name = sys.argv[2] if len(sys.argv) > 2 else const.MODEL_NAME
 
-    model = Model(input_shape=const.IMAGE_SHAPE).to(const.DEVICE)
+    model = Model(input_shape=const.IMAGE_SHAPE)
     model.load_state_dict(torch.load(const.SAVE_MODEL_PATH / f'{name}.pt', map_location=const.DEVICE))
     model.name = name
     model.eval()

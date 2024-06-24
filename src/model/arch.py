@@ -11,7 +11,7 @@ class Model(torch.nn.Module):
         super().__init__()
 
         units = [3, 16, 64, 32]
-        self.convs = nn.ModuleList([nn.Conv2d(*units[:2], 2, padding='same')] + 
+        self.convs = nn.ModuleList([nn.Conv2d(*units[:2], 2, padding='same')] +
                                    [nn.Conv2d(*features, 2, 2) for features in pairwise(units[1:])])
         self.convs[-1].register_forward_hook(self._hook)
 
@@ -25,7 +25,8 @@ class Model(torch.nn.Module):
         self.linear = nn.LazyLinear(2)
         self.softmax = nn.Softmax(dim=1)  # ~equivalent to sigmoid since classes = 2; relevant for CAMs
 
-        self(torch.randn(1, *input_shape))  # initialization
+        self.to(const.DEVICE)
+        self(torch.randn(1, *input_shape).to(const.DEVICE))  # initialization
         const.CAM_SIZE = tuple(self.feature_rect.shape[2:])
 
     def _hook(self, model, i, o):
@@ -54,7 +55,7 @@ class Model(torch.nn.Module):
 
 
 if __name__ == '__main__':
-    model = Model(input_shape=const.IMAGE_SHAPE).to(const.DEVICE)
+    model = Model(input_shape=const.IMAGE_SHAPE)
     model.eval()
 
     x = torch.rand((3, *const.IMAGE_SHAPE)).to(const.DEVICE)
