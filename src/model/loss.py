@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from astropy.convolution import Gaussian2DKernel
+from torch.nn import functional as F
 from ..auxilliary.train import get_model
 from ..data.siamese import Dataset
 import torch.nn as nn
@@ -36,7 +37,7 @@ class RadialLoss(nn.Module):
         self.kernel = torch.square(self.kernel)
 
     def forward(self, y_pred, y):
-        return torch.square(y_pred.to(const.DEVICE)[:, torch.argmax(y, dim=1)] * self.kernel).mean()
+        return (F.normalize((y_pred[:, 0] - y_pred[:, 1]).abs()) * self.kernel).mean()
 
 
 if __name__ == '__main__':
