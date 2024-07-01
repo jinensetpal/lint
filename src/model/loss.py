@@ -37,7 +37,7 @@ class RadialLoss(nn.Module):
         self.kernel = torch.square(self.kernel)
 
     def forward(self, y_pred, y):
-        return (F.normalize((y_pred[:, 0] - y_pred[:, 1]).abs()) * self.kernel).mean()
+        return (F.normalize((y_pred[:, 0] - y_pred[:, 1]).abs()).to(const.DEVICE) * self.kernel).mean()
 
 
 if __name__ == '__main__':
